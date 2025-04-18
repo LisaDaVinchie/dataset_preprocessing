@@ -68,11 +68,12 @@ class NetcdfToTorch:
         # Load the parameters
         with open(self.params_path, "r") as f:
             params = json.load(f)
-
-        self.keys_to_keep = list(params["dataset"]["channels_to_keep"])
-        self.n_rows = int(params["dataset"]["n_rows"])
-        self.n_cols = int(params["dataset"]["n_cols"])
+            
+        
         dataset_name = str(params["dataset"]["dataset_name"])
+        self.keys_to_keep = list(params[dataset_name]["channels_to_keep"])
+        self.n_rows = int(params[dataset_name]["n_rows"])
+        self.n_cols = int(params[dataset_name]["n_cols"])
         
         self.year_position = list(params[dataset_name]["year_position"])
         self.month_position = list(params[dataset_name]["month_position"])
