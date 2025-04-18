@@ -1,6 +1,9 @@
 # Datasets
 data/*
 
+# Paths file
+src/paths.json
+
 # The virtual environment
 venv_dataset/
 
