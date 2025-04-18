@@ -53,7 +53,7 @@ def main():
     elapsed_time = time.time() - start_time
 
     print(f"Elapsed time: {elapsed_time}")
-    
+ 
 class NetcdfToTorch:
     def __init__(self, raw_data_dir: Path, processed_data_dir: Path, processed_data_ext: str, params_path: Path):
         self.raw_data_dir = raw_data_dir
