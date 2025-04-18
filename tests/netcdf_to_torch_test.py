@@ -14,8 +14,8 @@ class TestNetcdfToTorch(unittest.TestCase):
         self.n_rows = 100
         self.n_cols = 200
         self.dataset_name = "test_dataset"
-        self.year_position = [39, 43]
-        self.month_position = [44, 46]
+        self.year_position = [41, 45]
+        self.month_position = [45, 47]
         self.day_position = [47, 49]
         # Create a sample params file
         self.params_content = {
@@ -39,7 +39,7 @@ class TestNetcdfToTorch(unittest.TestCase):
         
         self.netcdf2torch = NetcdfToTorch(
             raw_data_dir=Path("data/raw/"),
-            processed_data_dir=Path("data/processed/"),
+            processed_data_dir=Path("data/processed/ensemble_physics/"),
             processed_data_ext=".pt",
             params_path=self.params_path
         )
