@@ -1,6 +1,9 @@
 # Datasets
 data/*
 
+# The virtual environment
+venv_dataset/
+
 # Local system files
 **/.DS_Store
 
