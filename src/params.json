@@ -1,0 +1,17 @@
+{
+    "dataset":{
+        "n_rows": 681,
+        "n_cols": 1440,
+        "n_channels": 75,
+        "n_timesteps": 12,
+        "dataset_name": "ensemble_physics",
+        "_available_datasets": ["ensemble_physics"]
+    },
+    "ensemble_physics":{
+        "year_position": [39, 43],
+        "month_position": [44, 46],
+        "day_position": [47, 49],
+        "channels_to_keep": ["so_mean", "uo_mean", "vo_mean", "zos_mean"],
+        "channels": ["thetao_mean", "so_mean", "uo_mean", "vo_mean", "zos_mean", "mlotst_mean", "siconc_mean", "sithick_mean", "thetao_std", "so_std", "uo_std", "vo_std", "zos_std", "mlotst_std", "siconc_std", "sithick_std"]
+    }
+}
