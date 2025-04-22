@@ -1,7 +1,7 @@
 {
     "dataset":{
-        "dataset_name": "ensemble_physics",
-        "_available_datasets": ["ensemble_physics"]
+        "dataset_name": "biochemistry",
+        "_available_datasets": ["ensemble_physics", "biochemistry"]
     },
     "ensemble_physics":{
         "year_position": [41, 45],
@@ -12,5 +12,15 @@
         "n_channels": 75,
         "channels_to_keep": ["so_mean", "uo_mean", "vo_mean", "zos_mean"],
         "channels": ["thetao_mean", "so_mean", "uo_mean", "vo_mean", "zos_mean", "mlotst_mean", "siconc_mean", "sithick_mean", "thetao_std", "so_std", "uo_std", "vo_std", "zos_std", "mlotst_std", "siconc_std", "sithick_std"]
+    },
+    "biochemistry":{
+        "year_position": [41, 45],
+        "month_position": [45, 47],
+        "day_position": [47, 49],
+        "n_rows": 681,
+        "n_cols": 1440,
+        "n_channels": 50,
+        "channels_to_keep": ["nppv", "o2", "ph", "dissic", "talk", "spco2", "no3", "po4", "si", "fe", "phyc", "chl"],
+        "channels": ["nppv", "o2", "ph", "dissic", "talk", "spco2", "no3", "po4", "si", "fe", "phyc", "chl"]
     }
 }
