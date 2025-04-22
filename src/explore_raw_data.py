@@ -2,18 +2,17 @@ import xarray as xr
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-import matplotlib.pyplot as plt
 
 
 # data_path = Path('data/IFREMER-GLOB-SST-L3-NRT-OBS_FULL_TIME_SERIE_202211/')
 # data_path = Path('data/cmems_mod_glo_bgc-pft_anfc_0.25deg_P1D-m/')
-# data_path = Path('data/biochemistry/bio/')
+data_path = Path('data/raw/biochemistry/pft/')
 # data_path = Path('data/GLOBAL_ANALYSISFORECAST_PHY_001_024/')
 # data_path = Path('data/DIVAnd/')
 # data_path = Path('data/EMODNET/')
 # data_path = Path('data/ocldb1743602850/')
 # data_path = Path('data/MULTIOBS_GLO_BIO_CARBON_SURFACE_MYNRT_015_008/')
-data_path = Path('data/raw/ensemble_physics/my/')
+# data_path = Path('data/raw/ensemble_physics/my/')
 
 figs_folder = Path("figs/")
 
