@@ -41,6 +41,7 @@ def main():
     
     paths_by_date = group_files_by_date(raw_data_paths)
     print(f"Found {len(paths_by_date)} unique dates")
+    print(f"Dates: {list(paths_by_date.keys())}")
 
     params_path = Path(args.params)
     
@@ -58,7 +59,7 @@ def main():
     
     for date in list(paths_by_date.keys()):
         print(f"Processing date {str(date)}", flush=True)
-        file_name = date[0:5] + "_" + date[5:7] + "_" + date[7:9] + processed_data_ext
+        file_name = date[0:4] + "_" + date[4:6] + "_" + date[6:9] + processed_data_ext
         processed_data_path = processed_data_dir / file_name
         
         try:
