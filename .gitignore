@@ -3,6 +3,7 @@ data/*
 
 # Paths file
 src/paths.json
+src/login.json
 
 # The virtual environment
 venv_dataset/
