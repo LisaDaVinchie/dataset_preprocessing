@@ -41,7 +41,6 @@ def main():
     
     paths_by_date = group_files_by_date(raw_data_paths)
     print(f"Found {len(paths_by_date)} unique dates")
-    print(f"Dates: {list(paths_by_date.keys())}")
 
     params_path = Path(args.params)
     
@@ -55,18 +54,17 @@ def main():
     n_rows = int(params[dataset_name]["n_rows"])
     n_cols = int(params[dataset_name]["n_cols"])
     
-    print("Dates: ", list(paths_by_date.keys())[0])
+    print(f"Dates: {list(paths_by_date.keys())}\n")
     
     for date in list(paths_by_date.keys()):
         print(f"Processing date {str(date)}", flush=True)
-        file_name = date[0:4] + "_" + date[4:6] + "_" + date[6:9] + processed_data_ext
+        file_name = Path(date).stem + processed_data_ext
         processed_data_path = processed_data_dir / file_name
         
         try:
             output_tensor = th.zeros(len(keys_to_keep), n_rows, n_cols)
             idx = 0
             for path in paths_by_date[date]: # For each file
-                print(f"Processing {path}", flush=True)
                 data = xr.open_dataset(path, engine="h5netcdf")
                 
                 data_keys = list(data.keys())
@@ -103,7 +101,7 @@ def main():
     print(f"Elapsed time: {elapsed_time}")
     
 def group_files_by_date(files):
-    """Group files by date in the format YYYYMMDD.
+    """Group files by date in the format YYYYMM.
 
     Args:
         files (list): List of file paths.
@@ -118,7 +116,7 @@ def group_files_by_date(files):
     for path_sublist in files:
         for path in path_sublist:
             # Extract date from the filename (stem removes '.nc')
-            match = re.search(r"(\d{8})$", path.stem)
+            match = re.search(r"(\d{4}_\d{2})$", path.stem)
             if match:
                 date = match.group(1)
                 date_to_paths[date].append(path)
