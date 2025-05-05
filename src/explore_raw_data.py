@@ -28,6 +28,12 @@ if not data_path.exists():
 raw_data_paths = list(data_path.glob("*.nc"))
 raw_data_path = raw_data_paths[0]
 # raw_data_path = data_path / "Water_body_phosphate_subset.nc"
+raw_data_path = Path("data/raw/biochemistry/co2/2023_02.nc")
+
+if not raw_data_path.exists():
+    print(f'File {raw_data_path} does not exist')
+    exit()
+
 data = xr.open_dataset(raw_data_path)
 
 # Get the keys
