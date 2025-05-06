@@ -4,6 +4,8 @@ import time
 from pathlib import Path
 import argparse
 import json
+import calendar
+import re
 
 def main():
     start_time = time.time()
@@ -30,7 +32,8 @@ def main():
     # Create the processed data directory if it doesn't exist
     processed_data_dir.mkdir(parents=True, exist_ok=True)
 
-    raw_data_paths = list(raw_data_dir.glob("*.nc"))
+    pattern = re.compile(r"^\d{4}_\d{2}\.nc$")
+    raw_data_paths = [path for path in list(raw_data_dir.glob("*.nc")) if pattern.match(path.name)]
 
     params_path = Path(args.params)
     
@@ -64,7 +67,7 @@ class NetcdfToTorch:
         self.processed_data_dir = processed_data_dir
         self.processed_data_ext = processed_data_ext
         self.params_path = params_path
-        self.n_days = 31
+        self.n_days = self.calculate_days_in_month(raw_data_dir.stem)
         
         # Load the parameters
         self.load_params()
@@ -79,6 +82,21 @@ class NetcdfToTorch:
         self.keys_to_keep = list(params[dataset_name]["channels_to_keep"])
         self.n_rows = int(params[dataset_name]["n_rows"])
         self.n_cols = int(params[dataset_name]["n_cols"])
+        
+    def calculate_days_in_month(self, file_name: str) -> int:
+        """Get the number of days in the month from the file name.
+
+        Args:
+            file_name (str): file name in the format YYYY_MM.nc
+
+        Returns:
+            int: number of days in the month
+        """
+        month = int(file_name.split("_")[1])
+        year = int(file_name.split("_")[0])
+        
+        days_in_month = calendar.monthrange(year, month)[1]
+        return days_in_month
         
     def generate_processed_data_path(self, file_path: Path) -> Path:
         """Gernerate the processed data path from the raw data path.

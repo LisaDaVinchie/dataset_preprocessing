@@ -4,6 +4,8 @@ import time
 from pathlib import Path
 import argparse
 import json
+import calendar
+import re
 
 def main():
     start_time = time.time()
@@ -30,7 +32,8 @@ def main():
     # Create the processed data directory if it doesn't exist
     processed_data_dir.mkdir(parents=True, exist_ok=True)
 
-    raw_data_paths = list(raw_data_dir.glob("*.nc"))
+    pattern = re.compile(r"^\d{4}_\d{2}\.nc$")
+    raw_data_paths = [file for file in list(raw_data_dir.glob("*.nc")) if pattern.match(file.name)]
 
     params_path = Path(args.params)
     
@@ -44,6 +47,11 @@ def main():
     for file in raw_data_paths:
         print(f"Processing {file.name}")
         
+        # Check if the file name matches the expected format YYYY_MM.nc
+        if not file.name.endswith(".nc") or len(file.stem.split("_")) != 2 or not file.stem.split("_")[0].isdigit() or not file.stem.split("_")[1].isdigit():
+            print(f"Skipping {file.name}: Invalid file format. Expected format is YYYY_MM.nc")
+            continue
+        
         processed_data_path = netcdftotorch.generate_processed_data_path(file)
         
         output_tensor = netcdftotorch.file_to_tensor(file)
@@ -55,14 +63,13 @@ def main():
     elapsed_time = time.time() - start_time
 
     print(f"Elapsed time: {elapsed_time}")
- 
 class NetcdfToTorch:
     def __init__(self, raw_data_dir: Path, processed_data_dir: Path, processed_data_ext: str, params_path: Path):
         self.raw_data_dir = raw_data_dir
         self.processed_data_dir = processed_data_dir
         self.processed_data_ext = processed_data_ext
         self.params_path = params_path
-        self.n_days = 31
+        self.n_days = self.calculate_days_in_month(self.raw_data_dir.stem)
         
         # Load the parameters
         self.load_params()
@@ -77,6 +84,21 @@ class NetcdfToTorch:
         self.keys_to_keep = list(params[dataset_name]["channels_to_keep"])
         self.n_rows = int(params[dataset_name]["n_rows"])
         self.n_cols = int(params[dataset_name]["n_cols"])
+    
+    def calculate_days_in_month(self, file_name: str) -> int:
+        """Get the number of days in the month from the file name.
+
+        Args:
+            file_name (str): file name in the format YYYY_MM.nc
+
+        Returns:
+            int: number of days in the month
+        """
+        month = int(file_name.split("_")[1])
+        year = int(file_name.split("_")[0])
+        
+        days_in_month = calendar.monthrange(year, month)[1]
+        return days_in_month
         
     def generate_processed_data_path(self, file_path: Path) -> Path:
         """Gernerate the processed data path from the raw data path.
