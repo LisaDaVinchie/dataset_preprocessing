@@ -8,9 +8,33 @@ TEST_DIR := $(BASE_DIR)/tests
 RAW_DATA_DIR := $(DATA_DIR)/raw
 PROCESSED_DATA_DIR := $(DATA_DIR)/processed
 
+BIOCHEMISTRY_DIR_NAME := biochemistry
+TEMPERATURE_DIR_NAME := temperature
+ENSEMBLEPHYSICS_DIR_NAME := ensemble_physics
 
+PROCESSED_DATA_EXT = .pt
+
+PATHS_FILE := $(SRC_DIR)/paths.json
 
 .PHONY: config convert test help
+
+config:
+	@echo "Storing paths to json..."
+	@echo "{" > $(PATHS_FILE)
+	@echo "    \"$(BIOCHEMISTRY_DIR_NAME)\": {" >> $(PATHS_FILE)
+	@echo "     	\"raw_data_dir\": \"$(RAW_DATA_DIR)/$(BIOCHEMISTRY_DIR_NAME)/\"," >> $(PATHS_FILE)
+	@echo "     	\"processed_data_dir\": \"$(PROCESSED_DATA_DIR)/$(BIOCHEMISTRY_DIR_NAME)/\"" >> $(PATHS_FILE)
+	@echo "    }," >> $(PATHS_FILE)
+	@echo "		\"$(TEMPERATURE_DIR_NAME)\": {" >> $(PATHS_FILE)
+	@echo "     	\"raw_data_dir\": \"$(RAW_DATA_DIR)/$(TEMPERATURE_DIR_NAME)/\"," >> $(PATHS_FILE)
+	@echo "     	\"processed_data_dir\": \"$(PROCESSED_DATA_DIR)/$(TEMPERATURE_DIR_NAME)/\"" >> $(PATHS_FILE)
+	@echo "    }," >> $(PATHS_FILE)
+	@echo "    \"$(ENSEMBLEPHYSICS_DIR_NAME)\": {" >> $(PATHS_FILE)
+	@echo "     	\"raw_data_dir\": \"$(RAW_DATA_DIR)/$(ENSEMBLEPHYSICS_DIR_NAME)/\"," >> $(PATHS_FILE)
+	@echo "     	\"processed_data_dir\": \"$(PROCESSED_DATA_DIR)/$(ENSEMBLEPHYSICS_DIR_NAME)/\"" >> $(PATHS_FILE)
+	@echo "    }," >> $(PATHS_FILE)
+	@echo "		\"processed_data_ext\": \"$(PROCESSED_DATA_EXT)\"" >> $(PATHS_FILE)
+	@echo "}" >> $(PATHS_FILE)
 
 test:
 	@echo "Running tests in $(TEST_DIR)"
