@@ -19,10 +19,12 @@ def main():
 
     with open(paths_file, "r") as f:
         paths = json.load(f)
+        
+    dir_name = "biochemistry"
 
-    raw_data_dir = Path(paths["data"]["raw_data_dir"])
-    processed_data_dir = Path(paths["data"]["processed_data_dir"])
-    processed_data_ext = paths["data"]["processed_data_ext"]
+    raw_data_dir = Path(paths[dir_name]["raw_data_dir"])
+    processed_data_dir = Path(paths[dir_name]["processed_data_dir"])
+    processed_data_ext = paths["processed_data_ext"]
 
     if not raw_data_dir.exists():
         raise FileNotFoundError(f"Directory {raw_data_dir} does not exist.")
