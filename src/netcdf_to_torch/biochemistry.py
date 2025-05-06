@@ -6,6 +6,8 @@ import argparse
 import json
 import re
 from collections import defaultdict
+import calendar
+import re
 
 def main():
     start_time = time.time()
@@ -36,8 +38,10 @@ def main():
 
     raw_data_paths = []
     
+    pattern = re.compile(r"^\d{4}_\d{2}\.nc$")
+    
     for dir in sub_dirs:
-        raw_data_paths.append(sorted(dir.glob("*.nc")))
+        raw_data_paths.append(sorted([path for path in dir.glob("*.nc") if pattern.match(path.name)]))
         
     print(f"Found {len(raw_data_paths)} directories with {len(raw_data_paths[0])} files each")
     
@@ -63,8 +67,10 @@ def main():
         file_name = Path(date).stem + processed_data_ext
         processed_data_path = processed_data_dir / file_name
         
+        n_days = calculate_days_in_month(date)
+        
         try:
-            output_tensor = th.zeros(len(keys_to_keep), n_rows, n_cols)
+            output_tensor = th.zeros(n_days, len(keys_to_keep), n_rows, n_cols)
             idx = 0
             for path in paths_by_date[date]: # For each file
                 data = xr.open_dataset(path, engine="h5netcdf")
@@ -81,11 +87,11 @@ def main():
                     images = data[key]
                     
                     if images.ndim == 4: # Multy channel
-                        images = images[0, 0, :, :].values
+                        images = images[:, 0, :, :].values
                     elif images.ndim == 3: # Single channel
-                        images = images[0, :, :].values
+                        images = images.values
                     
-                    output_tensor[idx, :, :] = th.tensor(images)
+                    output_tensor[:, idx, :, :] = th.tensor(images)
                     idx += 1
                         
                 data.close()
@@ -101,6 +107,21 @@ def main():
     elapsed_time = time.time() - start_time
 
     print(f"Elapsed time: {elapsed_time}")
+    
+def calculate_days_in_month(file_name: str) -> int:
+        """Get the number of days in the month from the file name.
+
+        Args:
+            file_name (str): file name in the format YYYY_MM.nc
+
+        Returns:
+            int: number of days in the month
+        """
+        month = int(file_name.split("_")[1])
+        year = int(file_name.split("_")[0])
+        
+        days_in_month = calendar.monthrange(year, month)[1]
+        return days_in_month
     
 def group_files_by_date(files):
     """Group files by date in the format YYYYMM.
