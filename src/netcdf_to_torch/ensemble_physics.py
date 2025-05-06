@@ -62,6 +62,7 @@ class NetcdfToTorch:
         self.processed_data_dir = processed_data_dir
         self.processed_data_ext = processed_data_ext
         self.params_path = params_path
+        self.n_days = 31
         
         # Load the parameters
         self.load_params()
@@ -77,13 +78,6 @@ class NetcdfToTorch:
         self.n_rows = int(params[dataset_name]["n_rows"])
         self.n_cols = int(params[dataset_name]["n_cols"])
         
-        self.year_position = list(params[dataset_name]["year_position"])
-        self.month_position = list(params[dataset_name]["month_position"])
-        self.day_position = list(params[dataset_name]["day_position"])
-        
-        if self.year_position is None or self.month_position is None or self.day_position is None:
-            raise ValueError("Year, month or day position is None")
-        
     def generate_processed_data_path(self, file_path: Path) -> Path:
         """Gernerate the processed data path from the raw data path.
 
@@ -93,11 +87,8 @@ class NetcdfToTorch:
         Returns:
             Path: path to the processed data file
         """
-        file_name = file_path.name
-        year = file_name[self.year_position[0]:self.year_position[1]]
-        month = file_name[self.month_position[0]:self.month_position[1]]
-        day = file_name[self.day_position[0]:self.day_position[1]]
-        processed_data_path = self.processed_data_dir / f"{year}_{month}_{day}{self.processed_data_ext}"
+        file_name = file_path.stem
+        processed_data_path = self.processed_data_dir / f"{file_name}{self.processed_data_ext}"
         return processed_data_path
 
     def file_to_tensor(self, file_path: Path) -> tuple[Path, th.Tensor]:
@@ -109,7 +100,7 @@ class NetcdfToTorch:
         Returns:
             th.Tensor: tensor of the data
         """
-        output_tensor = th.zeros(len(self.keys_to_keep), self.n_rows, self.n_cols)
+        output_tensor = th.zeros(self.n_days, len(self.keys_to_keep), self.n_rows, self.n_cols)
         try:
             data = xr.open_dataset(file_path, engine="h5netcdf")
                 
@@ -117,11 +108,11 @@ class NetcdfToTorch:
                 images = data[key]
                 
                 if images.ndim == 4: # Multy channel
-                    images = images[0, 0, :, :].values
+                    images = images[:, 0, :, :].values
                 elif images.ndim == 3: # Single channel
-                    images = images[0, :, :].values
+                    images = images[:, :, :].values
                 
-                output_tensor[i, :, :] = th.tensor(images)
+                output_tensor[:, i, :, :] = th.tensor(images)
                     
             data.close()
             
