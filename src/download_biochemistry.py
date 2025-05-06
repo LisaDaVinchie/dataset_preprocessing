@@ -1,10 +1,10 @@
-import copernicusmarine
 import os
 import time
 import argparse
 from pathlib import Path
 import json
 from utils.login import login_copernicus
+from utils.download_dataset import CopernicusMarineDownloader
 
 start_time = time.time()
 
@@ -61,22 +61,21 @@ variables = {
 login_copernicus()
 print("\nLogin completed\n")
 
-# Download biochemistry data from Copernicus Marine Service
+dwl = CopernicusMarineDownloader(
+    longitude_range=[minimum_longitude, maximum_longitude],
+    latitude_range=[minimum_latitude, maximum_latitude],
+    datetime_range=[start_datetime, end_datetime],
+    depth_range=[minimum_depth, maximum_depth]
+)
+print("\nCopernicus Marine Downloader initialized\n")
+
 for name in dataset_name:
     print(f"\nDownloading {name} data from Copernicus Marine Service\n")
-    copernicusmarine.subset(
+    dwl.download(
+        output_filename=output_filename,
         dataset_id=dataset_id[name],
-        variables=variables[name],
-        minimum_longitude=minimum_longitude,
-        maximum_longitude=maximum_longitude,
-        minimum_latitude=minimum_latitude,
-        maximum_latitude=maximum_latitude,
-        start_datetime=start_datetime,
-        end_datetime=end_datetime,
-        minimum_depth=minimum_depth,
-        maximum_depth=maximum_depth,
         output_directory=output_directories[name],
-        output_filename=output_filename
+        variables=variables[name]
     )
     print(f"Downloaded {name} data from Copernicus Marine Service\n\n")
     

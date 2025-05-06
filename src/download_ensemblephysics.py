@@ -1,6 +1,5 @@
-import copernicusmarine
-import os
 from utils.login import login_copernicus
+from utils.download_dataset import CopernicusMarineDownloader
 import time
 import argparse
 from pathlib import Path
@@ -28,17 +27,20 @@ month = "01"
 day_start = "01"
 day_end = "31"
 
-copernicusmarine.subset(
-    dataset_id="cmems_mod_glo_phy-all_my_0.25deg_P1D-m",
-    variables=["mlotst_cglo", "mlotst_glor", "mlotst_oras", "siconc_cglo", "siconc_glor", "siconc_oras", "sithick_cglo", "sithick_glor", "sithick_oras", "so_cglo", "so_glor", "so_oras", "thetao_cglo", "thetao_glor", "thetao_oras", "uo_cglo", "uo_glor", "uo_oras", "vo_cglo", "vo_glor", "vo_oras", "zos_cglo", "zos_glor", "zos_oras"],
-    minimum_longitude=-180,
-    maximum_longitude=179.75,
-    minimum_latitude=-80,
-    maximum_latitude=90,
-    start_datetime=f"{year}-{month}-{day_start}T00:00:00",
-    end_datetime=f"{year}-{month}-{day_end}T00:00:00",
+dwl = CopernicusMarineDownloader(
+    longitude_range=[-180, 179.75],
+    latitude_range=[-80, 90],
+    datetime_range=[f"{year}-{month}-{day_start}T00:00:00", f"{year}-{month}-{day_end}T00:00:00"],
+    depth_range=[0.5057600140571594, 0.5057600140571594]
+)
+
+print("Constructed downloader\n")
+
+dwl.download(
+    output_filename=f"{year}_{month}.nc",
+    dataset_id="cmems_mod_glo_phy-mnstd_my_0.25deg_P1D-m",
     output_directory=raw_data_dir,
-    output_filename=f"{year}_{month}.nc"
+    variables=["mlotst_mean", "mlotst_std", "siconc_mean", "siconc_std", "sithick_mean", "sithick_std", "so_mean", "so_std", "thetao_mean", "thetao_std", "uo_mean", "uo_std", "vo_mean", "vo_std", "zos_mean", "zos_std"]
 )
 
 print(f"\nDownload completed in {time.time() - start_time} seconds\n")
