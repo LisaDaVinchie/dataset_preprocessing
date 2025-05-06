@@ -1,9 +1,24 @@
 import copernicusmarine
 import os
 import time
+import argparse
+from pathlib import Path
+import json
 from utils.login import login_copernicus
 
 start_time = time.time()
+
+parser = argparse.ArgumentParser(description="Download biochemistry data from Copernicus Marine Service.")
+parser.add_argument("--paths", type=str, required=True, help="Path to the json containing the paths.")
+args = parser.parse_args()
+
+paths_file = Path(args.paths)
+with open(paths_file, "r") as f:
+    paths = json.load(f)
+    
+raw_data_dir = Path(paths["biochemistry"]["raw_data_dir"])
+if not raw_data_dir.exists():
+    raise FileNotFoundError(f"Directory {raw_data_dir} does not exist.")
 
 minimum_longitude = -180
 maximum_longitude = 179.75
@@ -28,8 +43,7 @@ dataset_id = {}
 output_directories = {}
 for name in dataset_name:
     dataset_id[name] = f"cmems_mod_glo_bgc-{name}_anfc_0.25deg_P1D-m"
-    # "cmems_mod_glo_bgc-pft_anfc_0.25deg_P1D-m"
-    output_directories[name] = f"data/raw/biochemistry/{name}"
+    output_directories[name] = raw_data_dir / f"{name}/"
     
     if not os.path.exists(output_directories[name]):
         raise FileNotFoundError(f"Directory {output_directories[name]} does not exist.")  
