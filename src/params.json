@@ -1,28 +1,38 @@
 {
     "dataset":{
-        "dataset_name": "biochemistry",
+        "dataset_name": "temperature",
+        "year_range": [2023, 2023],
+        "month_range": [1, 12],
         "_available_datasets": ["ensemble_physics", "biochemistry", "temperature"]
     },
     "ensemble_physics":{
-        "year_position": [41, 45],
-        "month_position": [45, 47],
-        "day_position": [47, 49],
         "n_rows": 681,
         "n_cols": 1440,
-        "n_channels": 75,
         "channels_to_keep": ["so_mean", "uo_mean", "vo_mean", "zos_mean"],
-        "channels": ["thetao_mean", "so_mean", "uo_mean", "vo_mean", "zos_mean", "mlotst_mean", "siconc_mean", "sithick_mean", "thetao_std", "so_std", "uo_std", "vo_std", "zos_std", "mlotst_std", "siconc_std", "sithick_std"]
+        "channels": ["thetao_mean", "so_mean", "uo_mean", "vo_mean", "zos_mean", "mlotst_mean", "siconc_mean", "sithick_mean", "thetao_std", "so_std", "uo_std", "vo_std", "zos_std", "mlotst_std", "siconc_std", "sithick_std"],
+        "dataset_id": "cmems_mod_glo_phy-mnstd_my_0.25deg_P1D-m",
+        "longitude_range": [-180, 179.75],
+        "latitude_range": [-80, 90],
+        "depth_range": [0.5057600140571594, 0.5057600140571594]
     },
     "biochemistry":{
         "n_rows": 681,
         "n_cols": 1440,
         "channels_to_keep": ["nppv", "o2", "ph", "dissic", "talk", "spco2", "no3", "po4", "si", "fe", "phyc", "chl"],
-        "channels": ["nppv", "o2", "ph", "dissic", "talk", "spco2", "no3", "po4", "si", "fe", "phyc", "chl"]
+        "channels": ["nppv", "o2", "ph", "dissic", "talk", "spco2", "no3", "po4", "si", "fe", "phyc", "chl"],
+        "dataset_id": "",
+        "longitude_range": "",
+        "latitude_range": "",
+        "depth_range": ""
     },
     "temperature":{
         "n_rows": 1600,
         "n_cols": 3600,
         "channels_to_keep": ["sea_surface_temperature", "sea_surface_temperature_stddev", "or_latitude", "or_longitude"],
-        "channels": ["adjusted_sea_surface_temperature", "bias_to_reference_sst", "or_latitude", "or_longitude", "or_number_of_pixels", "quality_level", "satellite_zenith_angle", "sea_surface_temperature", "sea_surface_temperature_stddev", "solar_zenith_angle", "sses_bias", "sses_standard_deviation", "sst_dtime"]
+        "channels": ["adjusted_sea_surface_temperature", "bias_to_reference_sst", "or_latitude", "or_longitude", "or_number_of_pixels", "quality_level", "satellite_zenith_angle", "sea_surface_temperature", "sea_surface_temperature_stddev", "solar_zenith_angle", "sses_bias", "sses_standard_deviation", "sst_dtime"],
+        "dataset_id": "IFREMER-GLOB-SST-L3-NRT-OBS_FULL_TIME_SERIE",
+        "longitude_range": [-179.97500610351562, 179.97500610351562],
+        "latitude_range": [-79.9749984741211, 79.9749984741211],
+        "depth_range": [0.4940253794193268, 0.4940253794193268]
     }
 }
