@@ -15,8 +15,9 @@ ENSEMBLEPHYSICS_DIR_NAME := ensemble_physics
 PROCESSED_DATA_EXT = .pt
 
 PATHS_FILE := $(SRC_DIR)/paths.json
+PARAMS_FILE := $(SRC_DIR)/params.json
 
-.PHONY: config convert test help
+.PHONY: config download convert test help
 
 config:
 	@echo "Storing paths to json..."
@@ -36,7 +37,12 @@ config:
 	@echo "		\"processed_data_ext\": \"$(PROCESSED_DATA_EXT)\"" >> $(PATHS_FILE)
 	@echo "}" >> $(PATHS_FILE)
 
+download: config
+	$(PYTHON) $(SRC_DIR)/download.py --paths $(PATHS_FILE) --params $(PARAMS_FILE)
+
+convert: config
+	$(PYTHON) $(SRC_DIR)/netcdf_to_torch.py --paths $(PATHS_FILE) --params $(PARAMS_FILE)
+
 test:
 	@echo "Running tests in $(TEST_DIR)"
 	$(PYTHON) -m unittest discover -s $(TEST_DIR) -p "*test.py"
-
