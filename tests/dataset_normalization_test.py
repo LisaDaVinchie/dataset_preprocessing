@@ -5,7 +5,7 @@ import os
 import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
-from dataset_normalization import MinMaxNormalization
+from utils.dataset_normalization import MinMaxNormalization
 
 class TestMinMaxNormalization(unittest.TestCase):
     def setUp(self):
