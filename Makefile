@@ -44,7 +44,7 @@ convert: config
 	$(PYTHON) $(SRC_DIR)/netcdf_to_torch.py --paths $(PATHS_FILE) --params $(PARAMS_FILE)
 
 cut:
-	$(PYTHON) $(SRC_DIR)/cut.py --paths $(PATHS_FILE) --params $(PARAMS_FILE)
+	$(PYTHON) $(SRC_DIR)/cut_images.py --paths $(PATHS_FILE) --params $(PARAMS_FILE)
 
 test:
 	@echo "Running tests in $(TEST_DIR)"
