@@ -17,7 +17,7 @@ PROCESSED_DATA_EXT = .pt
 PATHS_FILE := $(SRC_DIR)/paths.json
 PARAMS_FILE := $(SRC_DIR)/params.json
 
-.PHONY: config download convert test help
+.PHONY: config download convert cut test help
 
 config:
 	@echo "Storing paths to json..."
@@ -42,6 +42,9 @@ download: config
 
 convert: config
 	$(PYTHON) $(SRC_DIR)/netcdf_to_torch.py --paths $(PATHS_FILE) --params $(PARAMS_FILE)
+
+cut:
+	$(PYTHON) $(SRC_DIR)/cut.py --paths $(PATHS_FILE) --params $(PARAMS_FILE)
 
 test:
 	@echo "Running tests in $(TEST_DIR)"
