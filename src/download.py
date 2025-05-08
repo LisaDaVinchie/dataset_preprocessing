@@ -42,7 +42,7 @@ def main():
         for month in range(month_range[0], month_range[1] + 1):
             print(f"\nDownloading data for {year}-{month}...\n")
             dwl.download(
-                output_filename=f"{year}_{month}.nc",
+                output_filename=f"{year}_{str(month).zfill(2)}.nc",
                 dataset_id=dataset_id,
                 output_directory=raw_data_dir,
                 variables=channels,
