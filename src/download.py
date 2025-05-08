@@ -25,9 +25,7 @@ def main():
     year_range = list(params["dataset"]["year_range"])
     month_range = list(params["dataset"]["month_range"])
 
-    datetime_range = get_datetime_range(year_range, month_range) 
-    
-    print("datetime_range:", datetime_range)       
+    datetime_range = get_datetime_range(year_range, month_range)
 
     login_copernicus()
     print("\nLogin completed\n")
@@ -40,8 +38,8 @@ def main():
     print("\nCopernicus Marine Downloader initialized\n")
     # Download the data
 
-    for year in year_range:
-        for month in month_range:
+    for year in range(year_range[0], year_range[1] + 1):
+        for month in range(month_range[0], month_range[1] + 1):
             print(f"\nDownloading data for {year}-{month}...\n")
             dwl.download(
                 output_filename=f"{year}_{month}.nc",
