@@ -5,6 +5,9 @@ data/*
 src/paths.json
 src/login.json
 
+# Jupyter Notebooks
+src/*.ipynb
+
 # The virtual environment
 venv_dataset/
 
