@@ -11,12 +11,14 @@ class TestMinMaxNormalization(unittest.TestCase):
     def setUp(self):
         
         dataset_shape = (100, 5, 128, 128)
-        self.sample_images = th.randn(dataset_shape[0], dataset_shape[1], dataset_shape[2], dataset_shape[3])
-        self.sample_masks = th.ones(dataset_shape[0], dataset_shape[1], dataset_shape[2], dataset_shape[3])
+        self.sample_images = th.randn(dataset_shape, dtype=th.float32)
+        self.sample_masks = th.ones(dataset_shape, dtype=th.bool)
+        self.nan_placeholder = -2
         
         masked_idxs = [[0, 0, 0, 0], [0, 1, 1, 0], [0, 2, 2, 0], [0, 3, 3, 0], [0, 4, 4, 0]]
         for idx in masked_idxs:
             self.sample_masks[idx[0], idx[1], idx[2], idx[3]] = 0
+            self.sample_images[idx[0], idx[1], idx[2], idx[3]] = self.nan_placeholder
             
         self.normalizer = MinMaxNormalization(batch_size=10)
         
@@ -32,7 +34,8 @@ class TestMinMaxNormalization(unittest.TestCase):
         self.assertEqual(len(min_max), 2)
         self.assertTrue(th.all(norm_images[masks] >= 0))
         self.assertTrue(th.all(norm_images[masks] <= 1))
-        self.assertTrue(th.all(norm_images[~masks] == images[~masks]))
+        self.assertTrue(th.all(norm_images[~masks] == self.nan_placeholder))
+        self.assertEqual(th.isnan(norm_images).sum().item(), 0)
         
     def test_normalize_large_dataset(self):
         """Test normalization on a large dataset."""
@@ -46,7 +49,8 @@ class TestMinMaxNormalization(unittest.TestCase):
         self.assertEqual(len(min_max), 2)
         self.assertTrue(th.all(norm_images[masks] >= 0))
         self.assertTrue(th.all(norm_images[masks] <= 1))
-        self.assertTrue(th.all(norm_images[~masks] == images[~masks]))
+        self.assertTrue(th.all(norm_images[~masks] == self.nan_placeholder))
+        self.assertEqual(th.isnan(norm_images).sum().item(), 0)
     
     def test_denormalize(self):
         """Test denormalization."""
@@ -66,6 +70,3 @@ class TestMinMaxNormalization(unittest.TestCase):
         # Check if denormalized images are equal to original images where masks are 1
         masks = masks.to(th.bool)
         self.assertTrue(th.allclose(denorm_images[masks], images[masks], atol=1e-5))
-            
-        
-        
