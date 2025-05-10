@@ -33,8 +33,6 @@ class MinMaxNormalization:
         if self.channels is None:
             self.channels = list(range(n_channels))  # Normalize all channels if none specified
         
-        
-        
         # For small datasets, normalize the entire dataset at once
         # Faster but requires more memory
         if n_images < self.batch_size:
