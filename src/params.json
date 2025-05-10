@@ -1,13 +1,22 @@
 {
     "dataset":{
+        "cutted_nrows": 128,
+        "cutted_ncols": 128,
+        "n_cutted_images": 10,
+        "nans_threshold": 0.3,
+        "nan_placeholder": -2.0,
+        "mask_kind": "square",
+        "_possible_mask_kinds": ["square", "lines"],
+        "same_mask": false,
         "dataset_name": "temperature",
+        "_available_datasets": ["ensemble_physics", "biochemistry", "temperature"],
         "year_range": [2023, 2023],
-        "month_range": [1, 12],
-        "_available_datasets": ["ensemble_physics", "biochemistry", "temperature"]
+        "month_range": [1, 12]
     },
     "ensemble_physics":{
         "n_rows": 681,
         "n_cols": 1440,
+        "masked_channels": [0, 1, 2, 3],
         "channels_to_keep": ["so_mean", "uo_mean", "vo_mean", "zos_mean"],
         "channels": ["thetao_mean", "so_mean", "uo_mean", "vo_mean", "zos_mean", "mlotst_mean", "siconc_mean", "sithick_mean", "thetao_std", "so_std", "uo_std", "vo_std", "zos_std", "mlotst_std", "siconc_std", "sithick_std"],
         "dataset_id": "cmems_mod_glo_phy-mnstd_my_0.25deg_P1D-m",
@@ -28,11 +37,22 @@
     "temperature":{
         "n_rows": 1600,
         "n_cols": 3600,
+        "masked_channels": [0, 1],
         "channels_to_keep": ["sea_surface_temperature", "sea_surface_temperature_stddev", "or_latitude", "or_longitude"],
         "channels": ["adjusted_sea_surface_temperature", "bias_to_reference_sst", "or_latitude", "or_longitude", "or_number_of_pixels", "quality_level", "satellite_zenith_angle", "sea_surface_temperature", "sea_surface_temperature_stddev", "solar_zenith_angle", "sses_bias", "sses_standard_deviation", "sst_dtime"],
         "dataset_id": "IFREMER-GLOB-SST-L3-NRT-OBS_FULL_TIME_SERIE",
         "longitude_range": [-179.97500610351562, 179.97500610351562],
         "latitude_range": [-79.9749984741211, 79.9749984741211],
         "depth_range": [0.4940253794193268, 0.4940253794193268]
+    },
+    "masks": {
+        "square": {
+            "mask_percentage": 0.10
+        },
+        "lines": {
+            "num_lines": 5,
+            "min_thickness": 1,
+            "max_thickness": 5
+        }
     }
 }
