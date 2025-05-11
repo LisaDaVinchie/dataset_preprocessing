@@ -40,19 +40,19 @@ class TestGenerateMaskedImageDataset(unittest.TestCase):
                 "cutted_ncols": self.cutted_ncols,
                 "n_cutted_images": self.n_cutted_images,
                 "nans_threshold": self.nans_threshold,
-                "dataset_name": "test",
-                "mask_kind": self.mask_kind
+                "dataset_kind": "test",
+                "mask_kind": self.mask_kind,
+                "test": {
+                    "n_rows": self.x_shape_raw,
+                    "n_cols": self.y_shape_raw,
+                    "channels_to_keep": [0, 1, 2, 3]
+                    }
             },
             "masks": {
                 "square": {
                    "mask_percentage": self.mask_percentage,
                 },
-             },
-            "test": {
-                "n_rows": self.x_shape_raw,
-                "n_cols": self.y_shape_raw,
-                "channels_to_keep": [0, 1, 2, 3]
-                }
+             }
         }
         
         n_days = 31
