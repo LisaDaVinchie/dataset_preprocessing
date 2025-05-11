@@ -74,10 +74,12 @@ def main():
 
     dataset = {}
     dataset["images"], minmax = norm_class.normalize(images, nans_masks)
+    
     dataset["masks"] = th.ones_like(images, dtype=th.bool)
     mask_class = initialize_mask_kind(params, mask_kind)
     for j in masked_channels:
         dataset["masks"][:, j, :, :] = th.stack([mask_class.mask() for _ in range(images.shape[0])], dim=0)
+    dataset["masks"] = th.logical_and(dataset["masks"], nans_masks)
         
     pickle.HIGHEST_PROTOCOL = 4
     th.save(dataset, dataset_path, _use_new_zipfile_serialization=False)
