@@ -28,9 +28,9 @@ def main():
     if nan_placeholder == "false":
         raise ValueError("The placeholder value must be a float, not 'false'.")
     
-    dataset_kind = str(params["dataset"]["dataset_name"])
-    masked_channels = list(params[dataset_kind]["masked_channels"])
-    channels_to_keep = list(params[dataset_kind]["channels_to_keep"])
+    dataset_kind = str(params["dataset"]["dataset_kind"])
+    masked_channels = list(params["dataset"][dataset_kind]["masked_channels"])
+    channels_to_keep = list(params["dataset"][dataset_kind]["channels_to_keep"])
     n_channels = len(channels_to_keep) + 1 # +1 for the time layer
         
     print("Using placeholder value: ", nan_placeholder, flush=True)
@@ -69,20 +69,15 @@ def main():
     
     images, nans_masks = cut_class.generate_cutted_images(n_channels=n_channels, path_to_indices_map=path_to_indices, placeholder=nan_placeholder)
     print(f"Generated the dataset in {time() - d_time} seconds\n", flush=True)
-    print(f"Number of nans in the dataset before normalization: {th.isnan(images).sum()}", flush=True)
     
     norm_class = MinMaxNormalization(batch_size=1000)
 
     dataset = {}
     dataset["images"], minmax = norm_class.normalize(images, nans_masks)
-    
-    print(f"Number of nans in the dataset: {th.isnan(dataset['images']).sum()}", flush=True)
-    
-    dataset["masks"] = th.ones_like(images, dtype=th.float32)
+    dataset["masks"] = th.ones_like(images, dtype=th.bool)
     mask_class = initialize_mask_kind(params, mask_kind)
     for j in masked_channels:
         dataset["masks"][:, j, :, :] = th.stack([mask_class.mask() for _ in range(images.shape[0])], dim=0)
-    
         
     pickle.HIGHEST_PROTOCOL = 4
     th.save(dataset, dataset_path, _use_new_zipfile_serialization=False)
@@ -143,8 +138,8 @@ class CutImages:
     def _load_parameters(self, params):
         if params is not None:
             
-            dataset_kind = str(params["dataset"]["dataset_name"])
-            dataset_params = params[dataset_kind]
+            dataset_kind = str(params["dataset"]["dataset_kind"])
+            dataset_params = params["dataset"][dataset_kind]
             self.original_nrows = int(dataset_params["n_rows"]) if self.original_nrows is None else self.original_nrows
             self.original_ncols = int(dataset_params["n_cols"]) if self.original_ncols is None else self.original_ncols
             self.n_cutted_images = int(params["dataset"]["n_cutted_images"]) if self.n_cutted_images is None else self.n_cutted_images
