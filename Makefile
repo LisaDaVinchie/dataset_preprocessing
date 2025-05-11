@@ -21,10 +21,10 @@ MINMAX_DIR := $(DATA_DIR)/minmax
 DATASET_BASENAME := dataset
 DATASET_FILE_EXT := .pt
 
-SPECS_BASENAME := specs
+SPECS_BASENAME := dataset_specs
 SPECS_FILE_EXT := .json
 
-NANMASKS_BASENAME := nanmasks
+NANMASKS_BASENAME := nans_mask
 NANMASKS_FILE_EXT := .pt
 
 MINMAX_BASENAME := minmax
