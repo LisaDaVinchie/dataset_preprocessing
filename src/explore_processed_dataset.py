@@ -1,9 +1,10 @@
 import torch as th
 from pathlib import Path
+import matplotlib.pyplot as plt
 
-processed_data_dir = Path("data/processed/biochemistry/")
+# processed_data_dir = Path("data/processed/biochemistry/")
 # processed_data_dir = Path("data/processed/ensemble_physics/")
-# processed_data_dir = Path("data/processed/temperature/")
+processed_data_dir = Path("data/processed/temperature/")
 
 processed_data_ext = ".pt"
 
@@ -16,3 +17,6 @@ print(f"Found {len(dataset_paths)} files in {processed_data_dir} with extension 
 dataset = th.load(dataset_paths[0])
 
 print(f"Dataset shape: {dataset.shape}\n")
+
+plt.imshow(dataset[0, 0, :, :])
+plt.show()
