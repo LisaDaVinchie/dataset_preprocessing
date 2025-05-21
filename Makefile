@@ -7,6 +7,7 @@ TEST_DIR := $(BASE_DIR)/tests
 
 RAW_DATA_DIR := $(DATA_DIR)/raw
 PROCESSED_DATA_DIR := $(DATA_DIR)/processed
+ORIGINAL_NANMASKS_DIR := $(DATA_DIR)/original_nanmasks
 
 BIOCHEMISTRY_DIR_NAME := biochemistry
 TEMPERATURE_DIR_NAME := temperature
@@ -57,15 +58,18 @@ config:
 	@echo "{" > $(PATHS_FILE)
 	@echo "    \"$(BIOCHEMISTRY_DIR_NAME)\": {" >> $(PATHS_FILE)
 	@echo "     	\"raw_data_dir\": \"$(RAW_DATA_DIR)/$(BIOCHEMISTRY_DIR_NAME)/\"," >> $(PATHS_FILE)
-	@echo "     	\"processed_data_dir\": \"$(PROCESSED_DATA_DIR)/$(BIOCHEMISTRY_DIR_NAME)/\"" >> $(PATHS_FILE)
+	@echo "     	\"processed_data_dir\": \"$(PROCESSED_DATA_DIR)/$(BIOCHEMISTRY_DIR_NAME)/\"," >> $(PATHS_FILE)
+	@echo "     	\"nan_masks_dir\": \"$(ORIGINAL_NANMASKS_DIR)/$(BIOCHEMISTRY_DIR_NAME)/\"" >> $(PATHS_FILE)
 	@echo "    }," >> $(PATHS_FILE)
 	@echo "    \"$(TEMPERATURE_DIR_NAME)\": {" >> $(PATHS_FILE)
 	@echo "     	\"raw_data_dir\": \"$(RAW_DATA_DIR)/$(TEMPERATURE_DIR_NAME)/\"," >> $(PATHS_FILE)
-	@echo "     	\"processed_data_dir\": \"$(PROCESSED_DATA_DIR)/$(TEMPERATURE_DIR_NAME)/\"" >> $(PATHS_FILE)
+	@echo "     	\"processed_data_dir\": \"$(PROCESSED_DATA_DIR)/$(TEMPERATURE_DIR_NAME)/\"," >> $(PATHS_FILE)
+	@echo "     	\"nan_masks_dir\": \"$(ORIGINAL_NANMASKS_DIR)/$(TEMPERATURE_DIR_NAME)/\"" >> $(PATHS_FILE)
 	@echo "    }," >> $(PATHS_FILE)
 	@echo "    \"$(ENSEMBLEPHYSICS_DIR_NAME)\": {" >> $(PATHS_FILE)
 	@echo "     	\"raw_data_dir\": \"$(RAW_DATA_DIR)/$(ENSEMBLEPHYSICS_DIR_NAME)/\"," >> $(PATHS_FILE)
-	@echo "     	\"processed_data_dir\": \"$(PROCESSED_DATA_DIR)/$(ENSEMBLEPHYSICS_DIR_NAME)/\"" >> $(PATHS_FILE)
+	@echo "     	\"processed_data_dir\": \"$(PROCESSED_DATA_DIR)/$(ENSEMBLEPHYSICS_DIR_NAME)/\"," >> $(PATHS_FILE)
+	@echo "     	\"nan_masks_dir\": \"$(ORIGINAL_NANMASKS_DIR)/$(ENSEMBLEPHYSICS_DIR_NAME)/\"" >> $(PATHS_FILE)
 	@echo "    }," >> $(PATHS_FILE)
 	@echo "    \"processed_data_ext\": \"$(PROCESSED_DATA_EXT)\"," >> $(PATHS_FILE)
 	@echo "    \"dataset\": {" >> $(PATHS_FILE)
