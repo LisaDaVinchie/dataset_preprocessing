@@ -5,7 +5,7 @@ class MinMaxNormalization:
         self.min_val = None
         self.max_val = None
         self.batch_size = batch_size  # Default batch size for normalization
-        self.channels = channels  # List of channels to normalize, if None normalize all channels
+        self.channels_to_norm = channels  # List of channels to normalize, if None normalize all channels
     
     def normalize(self, images: th.Tensor, nans_masks: th.Tensor) -> tuple[th.Tensor, list]:
         """Normalize the dataset using min-max normalization.
@@ -30,8 +30,8 @@ class MinMaxNormalization:
         self.min_val = th.full((n_channels,), th.inf)
         self.max_val = th.full((n_channels,), -th.inf)
         
-        if self.channels is None:
-            self.channels = list(range(n_channels))  # Normalize all channels if none specified
+        if self.channels_to_norm is None:
+            self.channels_to_norm = list(range(n_channels))  # Normalize all channels if none specified
         
         # For small datasets, normalize the entire dataset at once
         # Faster but requires more memory
@@ -39,7 +39,7 @@ class MinMaxNormalization:
             # Get the min and max values of the dataset, excluding the masked pixels
             norm_images = th.empty_like(images)
             # Iterate over the specified channels
-            for channel in self.channels:
+            for channel in self.channels_to_norm:
                 valid_pixels = images[:, channel, :, :][nans_masks[:, channel, :, :]]
                 self.min_val[channel] = th.min(valid_pixels)
                 self.max_val[channel] = th.max(valid_pixels)
@@ -55,12 +55,12 @@ class MinMaxNormalization:
                 batch_images = images[i:i+self.batch_size]
                 batch_masks = nans_masks[i:i+self.batch_size]
                 batch_valid = []
-                for channel in self.channels:
+                for channel in self.channels_to_norm:
                     batch_valid.append(batch_images[:, channel, :, :][batch_masks[:, channel, :, :]])  # Smaller temporary tensor
 
                 if len(batch_valid) > 0:  # Avoid empty tensors
-                    self.min_val = [min(self.min_val[channel], th.min(batch_valid[channel]).item()) for channel in self.channels]
-                    self.max_val = [max(self.max_val[channel], th.max(batch_valid[channel]).item()) for channel in self.channels]
+                    self.min_val = [min(self.min_val[channel], th.min(batch_valid[channel]).item()) for channel in self.channels_to_norm]
+                    self.max_val = [max(self.max_val[channel], th.max(batch_valid[channel]).item()) for channel in self.channels_to_norm]
             
             self.max_val = th.tensor(self.max_val)
             self.min_val = th.tensor(self.min_val)
@@ -74,7 +74,7 @@ class MinMaxNormalization:
                 batch_images = images[i:i+self.batch_size]
                 batch_masks = nans_masks[i:i+self.batch_size]
                 # Iterate over the specified channels
-                for channel in self.channels:
+                for channel in self.channels_to_norm:
                     norm_images[i:i+self.batch_size, channel, :, :] = th.where(batch_masks[:, channel, :, :], (batch_images[:, channel, :, :] - self.min_val[channel]) * scale_factor[channel], batch_images[:, channel, :, :])
         
         return norm_images, [self.min_val, self.max_val]
@@ -99,15 +99,17 @@ class MinMaxNormalization:
         if min_val is None or max_val is None:
             raise ValueError("Min and max values must be provided for denormalization.")
         
-        if self.channels is None:
-            self.channels = list(range(images.shape[1]))
+        if self.channels_to_norm is None:
+            self.channels_to_norm = list(range(images.shape[1]))
         
         # Denormalize the images
         denorm_images = th.empty_like(images)
         
         diff = max_val - min_val
         
-        for channel in self.channels:
+        for channel in self.channels_to_norm:
+            if max_val[channel] == th.inf or min_val[channel] == -th.inf:
+                continue  # Skip if min or max is inf
             denorm_images[:, channel, :, :] = images[:, channel, :, :] * diff[channel] + min_val[channel]
         
         return denorm_images
