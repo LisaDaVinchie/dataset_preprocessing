@@ -8,7 +8,6 @@ import os
 import sys
 import math
 import pickle
-from typing import Type
 import calendar
 
 path_to_append = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -306,13 +305,19 @@ class CutImages:
             n_days = len(day_index_list) # number of (day, point) pairs in the image
             idx_end = idx_start + n_days
             encoded_times = [self._get_encoded_time(f"{Path(path).stem}_{day:02d}", oldest_date, interval) for (day, _) in day_index_list]
+            print(f"Encoded times")
             time_layers = th.stack([th.ones((self.cutted_nrows, self.cutted_ncols), dtype=th.float32) * encoded_time for encoded_time in encoded_times], dim=0)
             dataset[idx_start:idx_end, -1, :, :] = time_layers
+            print("Assigend time layer to dict")
             
             cutted_images_list = [self._cut_valid_image(raw_data[day - 1, :, :, :], point, threshold) for (day, point) in day_index_list]
+            print("Images cutted")
             temp_imgs = th.stack(cutted_images_list, dim=0)
+            print("Stacked images")
             nans_masks[idx_start:idx_end, :-1, :, :] = ~th.isnan(temp_imgs)
+            print("Nans masks generated")
             dataset[idx_start:idx_end, :-1, :, :] = th.nan_to_num(temp_imgs, nan=placeholder)
+            print("Nans replaced with placeholder")
             idx_start = idx_end
             print(f"Processed file {path}\n")
                 
