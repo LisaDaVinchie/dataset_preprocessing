@@ -12,7 +12,7 @@ def main():
     params, paths = parse_input_paths()
     print("Paths and parameters loaded successfully.\n", flush=True)
     
-    dir_name = str(params["dataset"]["dataset_name"])
+    dir_name = str(params["dataset"]["dataset_kind"])
     raw_data_dir = Path(paths[dir_name]["raw_data_dir"])
     processed_data_dir = Path(paths[dir_name]["processed_data_dir"])
     processed_data_ext = paths["processed_data_ext"]
@@ -67,11 +67,11 @@ class NetcdfToTorch:
     
     def load_params(self, params: dict):
         # Load the parameters
-        
-        dataset_name = str(params["dataset"]["dataset_name"])
-        self.keys_to_keep = list(params[dataset_name]["channels_to_keep"])
-        self.n_rows = int(params[dataset_name]["n_rows"])
-        self.n_cols = int(params[dataset_name]["n_cols"])
+        dataset_params = params["dataset"]
+        dataset_name = str(dataset_params["dataset_kind"])
+        self.keys_to_keep = list(dataset_params[dataset_name]["channels_to_keep"])
+        self.n_rows = int(dataset_params[dataset_name]["n_rows"])
+        self.n_cols = int(dataset_params[dataset_name]["n_cols"])
     
     def calculate_days_in_month(self, file_name: str) -> int:
         """Get the number of days in the month from the file name.
