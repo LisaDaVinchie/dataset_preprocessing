@@ -51,8 +51,9 @@ def mask_inversemask_image(images: th.Tensor, masks: th.Tensor, placeholder: flo
     inverse_masked_img = new_images * inverse_masks + inv_placeholder * (1 - inverse_masks)
     return masked_img, inverse_masked_img
 
-def initialize_mask_kind(params: dict, mask_kind: str):
+def initialize_mask_kind(params: dict, mask_kind: str = None):
     """Initialize the mask kind based on the provided parameters."""
+    mask_kind = params["dataset"]["mask_kind"] if mask_kind is None else mask_kind
     if mask_kind == square_mask_name:
         return SquareMask(params)
     elif mask_kind == lines_mask_name:
