@@ -54,8 +54,7 @@ variables = {
     "car": ["dissic", "ph", "talk"],
     "co2": ["spco2"],
     "nut": ["fe", "no3", "po4", "si"],
-    "pft": ["chl", "phyc"],
-    "plankton": ["zooc"]
+    "pft": ["chl", "phyc"]
 }
 
 login_copernicus()
