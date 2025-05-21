@@ -4,6 +4,7 @@
         "cutted_ncols": 128,
         "n_cutted_images": 5000,
         "nans_threshold": 0.3,
+        "total_days": 9,
         "nan_placeholder": -300.0,
         "mask_kind": "square",
         "_possible_mask_kinds": ["square", "lines"],
