@@ -29,8 +29,8 @@ raw_data_paths = list(data_path.glob("*.nc"))
 raw_data_path = raw_data_paths[0]
 # raw_data_path = data_path / "Water_body_phosphate_subset.nc"
 # raw_data_path = Path("data/raw/biochemistry/co2/2023_02.nc")
-# raw_data_path = Path("data/raw/temperature/2023_01.nc")
-raw_data_path = Path("data/raw/ensemble_physics/2023_01.nc")
+raw_data_path = Path("data/raw/temperature/2023_02.nc")
+# raw_data_path = Path("data/raw/ensemble_physics/2023_01.nc")
 
 if not raw_data_path.exists():
     print(f'File {raw_data_path} does not exist')
@@ -52,9 +52,12 @@ for key in keys:
     print()
     
 
-# selected_key = "so_mean"
+selected_key = "quality_level"
 
-# images = data[selected_key].values[0, :, :, :]
+# images = data[selected_key].values[0, :, :]
+# plt.imshow(images)
+# plt.colorbar()
+# plt.show()
 
 # for c in range(images.shape[0]):
 #     plt.imshow(images[c, :, :])
