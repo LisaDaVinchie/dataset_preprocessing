@@ -21,10 +21,8 @@ def main():
     dataset_kind = str(params["dataset"]["dataset_kind"])
     nan_placeholder = params["dataset"]["nan_placeholder"]
     
-    
     if nan_placeholder is None:
         raise ValueError("The nan placeholder must be set in the parameters.")
-    
     
     # Paths to the input data
     processed_data_dir = Path(paths[dataset_kind]["processed_data_dir"])
@@ -47,6 +45,7 @@ def main():
     
     # Initialize the mask kind
     cut = CutImages(params)
+    print("Class initialized\n")
     
     # Get the paths to the files
     original_nan_masks_paths = list(original_nan_masks_dir.glob("*.pt"))
@@ -56,7 +55,9 @@ def main():
     
     # Map the random points to the days
     
-    final_dict, nan_mask_tensor = cut.get_data_paths_to_dataset_idx_dict(original_nan_masks_paths, processed_data_dir)
+    print("Mapping the random points to the days")
+    final_dict, _ = cut.get_data_paths_to_dataset_idx_dict(original_nan_masks_paths, processed_data_dir)
+    print("Mapping done\n")
     
     # Get the paths to the files
     original_data_paths = list(processed_data_dir.glob("*.pt"))
@@ -65,19 +66,26 @@ def main():
     original_data_paths.sort()
     
     # Cut the images
+    print("Cutting the images")
     cutted_images = cut.cut(final_dict, original_data_paths)
+    print("Cutting done\n")
     
+    print("Creating nan masks")
     nan_masks = ~th.isnan(cutted_images)
+    print("NaN masks created\n")
     
     dataset = {}
+    print("Creating dataset")
     dataset["images"] = th.nan_to_num(cutted_images, nan=nan_placeholder)
-    
     dataset["masks"] = create_masks(params, cutted_images, nan_masks)
+    print("Dataset created\n")
     
     # Save the cutted images
+    print("Saving dataset")
     th.save(dataset, dataset_path)
     
     # Save the nan masks
+    print("Saving nan masks")
     th.save(nan_masks, nanmasks_path)
     
     print("Elapsed time for parsing input paths: ", time() - start_time)
@@ -119,15 +127,15 @@ class CutImages:
             if self.original_ncols is None:
                 self.original_ncols = int(dataset_params[dataset_kind]["n_cols"])
             if self.final_nrows is None:
-                self.final_nrows = int(dataset_params[dataset_kind]["final_n_rows"])
+                self.final_nrows = int(dataset_params["cutted_nrows"])
             if self.final_ncols is None:
-                self.final_ncols = int(dataset_params[dataset_kind]["final_n_cols"])
+                self.final_ncols = int(dataset_params["cutted_ncols"])
             if self.n_images is None:
-                self.n_images = int(dataset_params[dataset_kind]["n_images"])
+                self.n_images = int(dataset_params["n_cutted_images"])
             if self.nans_threshold is None:
-                self.nans_threshold = float(dataset_params[dataset_kind]["nans_perc"])
+                self.nans_threshold = float(dataset_params["nans_threshold"])
             if self.total_days is None:
-                self.total_days = int(dataset_params[dataset_kind]["total_days"])
+                self.total_days = int(dataset_params["total_days"])
         
         for param in [self.original_nrows, self.original_ncols, self.final_nrows, self.final_ncols, self.nans_threshold, self.n_images, self.total_days]:
             if param is None:
@@ -335,6 +343,7 @@ class CutImages:
         
 
         for path in paths_list:
+            print(f"Processing file {path}")
             original_file = th.load(path)
             
             points_list = files_to_days_and_points_dict[path]
@@ -355,7 +364,8 @@ class CutImages:
                 if C == center_day_idx:
                     # Fill the dataset with stdev, lats, lons
                     dataset[B, -4:-1, :, :] = original_file[day, -3:, point[0]:point[0] + self.final_nrows, point[1]:point[1] + self.final_ncols]
-                    
+            
+            print(f"File {path} processed\n")
         return dataset     
             
     def _get_encoded_time(self, day: int) -> float:

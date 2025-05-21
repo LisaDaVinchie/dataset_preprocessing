@@ -61,14 +61,14 @@ class TestCutImages(unittest.TestCase):
             "dataset": {
                 "dataset_kind": "test",
                 "nan_placeholder": self.nan_placeholder,
+                "cutted_nrows": self.final_nrows,
+                "cutted_ncols": self.final_ncols,
+                "n_cutted_images": self.n_images,
+                "nans_threshold": self.nans_threshold,
+                "total_days": 2 * self.surrounding_days + 1,
                 "test": {
                     "n_rows": self.original_nrows,
                     "n_cols": self.original_ncols,
-                    "final_n_rows": self.final_nrows,
-                    "final_n_cols": self.final_ncols,
-                    "n_images": self.n_images,
-                    "nans_perc": self.nans_threshold,
-                    "total_days": 2 * self.surrounding_days + 1,
                 }
             }
         }
@@ -83,7 +83,7 @@ class TestCutImages(unittest.TestCase):
         self.assertEqual(cut.final_ncols, self.final_ncols)
         self.assertEqual(cut.n_images, self.n_images)
         self.assertEqual(cut.nans_threshold, self.nans_threshold)
-        self.assertEqual(cut.total_days, self.params["dataset"]["test"]["total_days"])
+        self.assertEqual(cut.total_days, self.params["dataset"]["total_days"])
         self.assertEqual(cut.surrounding_days, self.surrounding_days)
         self.assertEqual(cut.max_pixels, int(self.final_nrows * self.final_ncols * self.nans_threshold))
     
