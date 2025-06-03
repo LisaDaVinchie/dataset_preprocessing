@@ -79,6 +79,9 @@ class SquareMask:
         self._initialize_parameters(params)
         
         self._check_parameters()
+        
+        n_pixels = int(self.mask_percentage * self.image_nrows * self.image_ncols)
+        self.square_nrows = int(n_pixels ** 0.5)
 
     def _check_parameters(self):
         if self.image_nrows <= 0 or self.image_ncols <= 0:
@@ -110,17 +113,15 @@ class SquareMask:
         Returns:
             th.Tensor: binary mask of shape (nrows, ncols), th.bool dtype, where False=masked, True=background
         """
-        n_pixels = int(self.mask_percentage * self.image_nrows * self.image_ncols)
-        square_nrows = int(n_pixels ** 0.5)
         image_mask = th.ones((self.image_nrows, self.image_ncols), dtype=th.bool)
         
         # Get a random top-left corner for the square
-        row_idx = th.randint(0, self.image_ncols - square_nrows, (1,)).item()
-        col_idx = th.randint(0, self.image_nrows - square_nrows, (1,)).item()
+        row_idx = th.randint(0, self.image_ncols - self.square_nrows, (1,)).item()
+        col_idx = th.randint(0, self.image_nrows - self.square_nrows, (1,)).item()
         
         image_mask[
-            row_idx: row_idx + square_nrows,
-            col_idx: col_idx + square_nrows
+            row_idx: row_idx + self.square_nrows,
+            col_idx: col_idx + self.square_nrows
         ] = False
         
         return image_mask
