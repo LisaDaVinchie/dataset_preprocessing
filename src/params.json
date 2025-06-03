@@ -1,8 +1,8 @@
 {
-    "dataset":{
-        "cutted_nrows": 128,
-        "cutted_ncols": 128,
-        "n_cutted_images": 5000,
+    "dataset":{ 
+        "cutted_nrows": 256,
+        "cutted_ncols": 256,
+        "n_cutted_images": 2000,
         "nans_threshold": 0.3,
         "total_days": 9,
         "nan_placeholder": -300.0,
@@ -11,7 +11,7 @@
         "same_mask": false,
         "dataset_kind": "temperature",
         "_possible_dataset_kinds": ["ensemble_physics", "biochemistry", "temperature"],
-        "year_range": [2024, 2024],
+        "year_range": [2021, 2021],
         "month_range": [1, 12],
         "ensemble_physics":{
             "n_rows": 681,
