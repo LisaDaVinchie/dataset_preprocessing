@@ -9,6 +9,7 @@ from time import time
 import json
 import os
 import sys
+from collections import Counter
 
 path_to_append = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(path_to_append)
@@ -57,7 +58,7 @@ def main():
     # Map the random points to the days
     
     print("Mapping the random points to the days")
-    final_dict, _ = cut.get_data_paths_to_dataset_idx_dict(original_nan_masks_paths, processed_data_dir)
+    final_dict, _, masks = cut.get_data_paths_to_dataset_idx_dict(original_nan_masks_paths, processed_data_dir)
     print("Mapping done\n")
     
     # Get the paths to the files
@@ -70,60 +71,70 @@ def main():
     print("Cutting the images")
     cutted_images = cut.cut(final_dict, original_data_paths)
     print("Cutting done\n")
-    
-    print("Creating nan masks")
-    # The mask is 1 where the image is valid and 0 where the image is nan
     nan_masks = ~th.isnan(cutted_images)
-    print("NaN masks created\n")
+    print("Nan masks created\n")
+
+    # n_images = cutted_images.shape[0]
+    # batch_size = 10
+    # channels_to_norm = range(0, 9)
     
-    dataset = {}
-    print("Creating dataset")
-    dataset["images"] = th.nan_to_num(cutted_images, nan=nan_placeholder)
+    # lat_idx = 10
+    # lon_idx = 11
     
+    # lat_range = [-90, 90]
+    # lon_range = [-180, 180]
+    # scale_factor_lat = 1 / (lat_range[1] - lat_range[0])
+    # scale_factor_lon = 1 / (lon_range[1] - lon_range[0])
+    
+    # norm_images = cutted_images.clone()
+    
+    # print("Normalizing the images")
     # if n_images < batch_size:
         
-        # min_val = th.min(cutted_images[:, channels_to_norm, :, :][nan_masks[:, channels_to_norm, :, :]])
-        # max_val = th.max(cutted_images[:, channels_to_norm, :, :][nan_masks[:, channels_to_norm, :, :]])
+    #     min_val = th.min(cutted_images[:, channels_to_norm, :, :][nan_masks[:, channels_to_norm, :, :]])
+    #     max_val = th.max(cutted_images[:, channels_to_norm, :, :][nan_masks[:, channels_to_norm, :, :]])
         
-        # minmax = th.tensor([min_val, max_val])
+    #     minmax = th.tensor([min_val, max_val])
         
-        # scale_factor = 1 / (max_val - min_val)
+    #     scale_factor = 1 / (max_val - min_val)
         
-        # norm_images = cutted_images.clone()
-        # for c in channels_to_norm:
-        #     norm_images[:, c, :, :] = ((cutted_images[:, c, :, :] - min_val) * scale_factor)
-        #     norm_images[:, c, :, :][~nan_masks[:, c, :, :]] = nan_placeholder
+    #     for c in channels_to_norm:
+    #         norm_images[:, c, :, :] = (cutted_images[:, c, :, :] - min_val) * scale_factor
+    #         norm_images[:, c, :, :][~nan_masks[:, c, :, :]] = nan_placeholder
             
-        #     norm_images[:, lat_idx, :, :] = (cutted_images[:, lat_idx, :, :] - lat_range[0]) * scale_factor_lat
+    #         norm_images[:, lat_idx, :, :] = (cutted_images[:, lat_idx, :, :] - lat_range[0]) * scale_factor_lat
         
-        #     lon_idx = 11
-        #     norm_images[:, lon_idx, :, :] = (cutted_images[:, lon_idx, :, :] - lon_range[0]) * scale_factor_lon
+    #         norm_images[:, lon_idx, :, :] = (cutted_images[:, lon_idx, :, :] - lon_range[0]) * scale_factor_lon
     
     # else:
-        # min_val, max_val = th.inf, -th.inf
-        # for i in range(0, n_images, batch_size):
-        #     n_images_batch = min(batch_size, n_images - i)
-        #     batch_img = cutted_images[i:i+n_images_batch, channels_to_norm, :, :][nan_masks[i:i+n_images_batch, channels_to_norm, :, :]]
-        #     print("Batch shape:", batch_img.shape)
-        #     new_min_val = th.min(batch_img)
-        #     new_max_val = th.max(batch_img)
-        #     min_val = min(min_val, new_min_val)
-        #     max_val = max(max_val, new_max_val)
-        # minmax = th.tensor([min_val, max_val])
+    #     min_val, max_val = th.inf, -th.inf
+    #     for i in range(0, n_images, batch_size):
+    #         n_images_batch = min(batch_size, n_images - i)
+    #         batch_img = cutted_images[i:i+n_images_batch, channels_to_norm, :, :][nan_masks[i:i+n_images_batch, channels_to_norm, :, :]]
+    #         new_min_val = th.min(batch_img)
+    #         new_max_val = th.max(batch_img)
+    #         min_val = min(min_val, new_min_val)
+    #         max_val = max(max_val, new_max_val)
+    #     minmax = th.tensor([min_val, max_val])
         
-        # scale_factor = 1 / (max_val - min_val)
+    #     scale_factor = 1 / (max_val - min_val)
         
-        # for i in range(0, n_images, batch_size):
-        #     n_images_batch = min(batch_size, n_images - i)
+    #     for i in range(0, n_images, batch_size):
+    #         n_images_batch = min(batch_size, n_images - i)
             
-        #     # norm_images[i:i+n_images_batch, channels_to_norm, :, :] = ((cutted_images[i:i+n_images_batch, channels_to_norm, :, :] - min_val) * scale_factor)
-        #     # norm_images[i:i+n_images_batch, channels_to_norm, :, :][~nan_masks[i:i+n_images_batch, channels_to_norm, :, :]] = nan_placeholder
+    #         norm_images[i:i+n_images_batch, channels_to_norm, :, :] = ((cutted_images[i:i+n_images_batch, channels_to_norm, :, :] - min_val) * scale_factor)
+    #         norm_images[i:i+n_images_batch, channels_to_norm, :, :][~nan_masks[i:i+n_images_batch, channels_to_norm, :, :]] = nan_placeholder
             
-        #     norm_images[i:i+n_images_batch, :, :, :] = th.where(nan_masks[i:i+n_images_batch, :, :, :], norm_images[i:i+n_images_batch, :, :, :], nan_placeholder)
+    #         norm_images[i:i+n_images_batch, :, :, :] = th.where(nan_masks[i:i+n_images_batch, :, :, :], norm_images[i:i+n_images_batch, :, :, :], nan_placeholder)`
     
-    # dataset["images"] = norm_images
+    print("Creating dataset")
+    dataset = {}
+    norm_images = th.nan_to_num(cutted_images, nan=nan_placeholder)
+    dataset["images"] = norm_images
+    dataset["masks"] = th.logical_and(nan_masks, masks)
     
-    dataset["masks"] = create_masks(params, cutted_images, nan_masks)
+    # dataset["masks"] = create_masks(params, cutted_images, nan_masks)
+    
     print("Dataset created\n")
     
     # Save the cutted images
@@ -158,7 +169,7 @@ def main():
 
     print(f"Specs saved to {specs_path}\n")
     
-    print("Elapsed time for parsing input paths: ", time() - start_time)
+    print("Elapsed time: ", time() - start_time)
 
 def create_masks(params, cutted_images, nan_masks):
     masks = th.ones_like(cutted_images, dtype=th.bool)
@@ -169,7 +180,24 @@ def create_masks(params, cutted_images, nan_masks):
     
     mask_class = initialize_mask_kind(params)
     n_images = cutted_images.shape[0]
-    masks[:, c, :, :] = th.stack([mask_class.mask() for _ in range(n_images)], dim=0)
+    # masks[:, c, :, :] = th.stack([mask_class.mask() for _ in range(n_images)], dim=0)
+    
+    mask_w = mask_class.square_nrows
+    
+    max_pixels = int(0.3 * mask_w * mask_w)
+    max_trials = 1000
+    
+    for i in range(n_images):
+        mask = mask_class.mask()
+        n_nans_in_mask = th.sum(~nan_masks[i, c, :, :] & ~mask)
+        trials = 0
+        while n_nans_in_mask > max_pixels and trials < max_trials:
+            mask = mask_class.mask()
+            n_nans_in_mask = th.sum(~nan_masks[i, c, :, :] & ~mask)
+            trials += 1
+        if trials == max_trials:
+            raise ValueError(f"Could not create a valid mask for image {i} after {max_trials} trials. Please check the parameters.")
+    
     return th.logical_and(masks, nan_masks)
     
 class CutImages:
@@ -187,6 +215,8 @@ class CutImages:
         self._check_params()
         self.surrounding_days = self.total_days // 2
         self.max_pixels = int(self.final_nrows * self.final_ncols * self.nans_threshold)
+        
+        self.mask_class = initialize_mask_kind(params)
         
     def _load_parameters(self, params):
         if params is not None:
@@ -252,51 +282,6 @@ class CutImages:
             
         return available_days
     
-    def _select_random_points(self, n_points: int) -> list[tuple]:
-        """Select random points in the original image, to use as top-left corners for the cutted images
-
-        Args:
-            n_points (int): number of random points to select
-
-        Returns:
-            list: list of tuples with the random points as (x, y) coordinates
-        """
-        
-        max_x = self.original_nrows - self.final_nrows
-        max_y = self.original_ncols - self.final_ncols
-        
-        random_x = [random.randint(0, max_x - 1) for _ in range(n_points)]
-        random_y = [random.randint(0, max_y - 1) for _ in range(n_points)]
-        
-        random_points = [(x, y) for x, y in zip(random_x, random_y)]
-        return random_points
-    
-    def _map_random_points_to_days(self, path_list: list) -> dict:
-        """Assign the points to some random images
-
-        Args:
-            path_list (list): list of paths to the nan masks in the format path_to_folder/YYYY_MM.pt
-
-        Returns:
-            dict: dictionary with the paths path_to_folder/YYYY_MM.pt as keys and a list of tuples (day, point) as values
-        """
-        
-        days_list = self._get_available_days(path_list)
-        paths = list(days_list.keys())
-        
-        points_list = self._select_random_points(self.n_images)
-        
-        points_to_days = {}
-        
-        for point in points_list:
-            path = random.choice(paths)
-            day = random.choice(days_list[path])
-            if path not in points_to_days:
-                points_to_days[path] = []
-            points_to_days[path].append((day, point))
-        
-        return points_to_days
-    
     def get_data_paths_to_dataset_idx_dict(self, path_list: list[Path], files_dir: Path) -> tuple[dict, th.Tensor]:
         """Get a dictionary with the paths to the needed files as keys and a list (day, point, index) as values
         
@@ -309,11 +294,11 @@ class CutImages:
             nan_mask_tensor (th.Tensor): tensor with the cutted masks. Shape: (n_images, final_nrows, final_ncols), 0 where nan, boolean dtype.
         """
         
-        points_to_days_dict = self._map_random_points_to_days(path_list)
-        
-        paths_list = list(points_to_days_dict.keys())
         # Initialize nan masks tensor
         nan_mask_tensor = th.ones((self.n_images, self.final_nrows, self.final_ncols), dtype=th.bool)
+        init_masks = th.ones((self.n_images, 13, self.final_nrows, self.final_ncols), dtype=th.bool)
+        
+        point = (1115, 1500)  # Starting point for the cutted images
         
         # Initialize the dictionary
         final_dict = {}
@@ -321,20 +306,57 @@ class CutImages:
         # Index of the image in the future dataset
         i = 0
         
+        mean_img_per_day = max(1, self.n_images // len(path_list))
+        
+        
+        path_list = sorted(path_list)
+        
         # Iterate over the paths
-        for path in paths_list:
+        for k, path in enumerate(path_list):
+            print(f"Processing file {path.stem}")            
+            # Select the number of images for this month using a Gaussian distribution centered at mean_img_per_day
+            n_days_per_file = round(random.gauss(mean_img_per_day, mean_img_per_day / 3))
+            n_images_this_month = int(max(0, min(self.n_images, n_days_per_file)))
             original_nan_mask = th.load(path)
             
-            day_to_point_list = points_to_days_dict[path]
-            
-            year_month_str = Path(path).stem
-            
-            for day, point in day_to_point_list:
+            prev_day = 0
+            while n_images_this_month > 0:
+                if i >= self.n_images:
+                    break
+                min_day = 1
+                max_day = original_nan_mask.shape[0]  # Assuming the first dimension is the number of days
+                if path == path_list[0]:
+                    min_day = self.surrounding_days + 1  # Skip the first surrounding days for the first image
+                    print(f"day range for path {path.stem} is {min_day}-{max_day}")
+                if path == path_list[-1]:
+                    max_day = original_nan_mask.shape[0] - self.surrounding_days
+                    print(f"day range for path {path.stem} is {min_day}-{max_day}")
+                
+                day = th.randint(min_day, max_day + 1, (1,)).item()  # Randomly select a day from the original nan mask
+                # Do not use the same day of the same month twice
+                while day == prev_day:
+                    day = th.randint(min_day, max_day + 1, (1,)).item()  # Randomly select a day from the original nan mask
+                prev_day = day
+                year_month_str = Path(path).stem
+                
                 # Get the index of the point as (x, y) coordinates and the valid cutted image
                 point, cutted_mask = self._get_valid_nan_mask(original_nan_mask, day, point)
                 
-                # Add the cutted image to the tensor
+                mask = self.mask_class.mask()
+                
+                n_nans_in_mask = th.sum(~(cutted_mask | mask))
+                trials = 0
+                self.max_trials = 1000
+                self.max_pixels = int(0.3 * self.mask_class.square_nrows * self.mask_class.square_nrows)
+                while n_nans_in_mask > self.max_pixels and trials < self.max_trials:
+                    mask = self.mask_class.mask()
+                    n_nans_in_mask = th.sum(~(cutted_mask | mask))
+                    trials += 1
+                if trials == self.max_trials:
+                    continue  # Skip this day if the mask is not valid after max_trials
+                
                 nan_mask_tensor[i, :, :] = cutted_mask
+                init_masks[i, 4, :, :] = mask
                 
                 year_month_day_str = f"{year_month_str}_{day:02d}"
                 
@@ -349,9 +371,11 @@ class CutImages:
                     final_dict[file_path].append((day, point, (i, k)))
                     
                 # Update the dataset index
+                n_images_this_month -= 1
+                
                 i += 1
         
-        return final_dict, nan_mask_tensor 
+        return final_dict, nan_mask_tensor, init_masks
 
     def _get_days_list(self, date_str: str) -> list:
         
@@ -386,19 +410,6 @@ class CutImages:
         
         cutted_mask = original_nan_mask[day - 1, point[0]:point[0] + self.final_nrows, point[1]:point[1] + self.final_ncols]
                 
-        n_nans = th.sum(~cutted_mask).float()
-                
-        # Check if the cutted image has too many nans
-        if n_nans > self.max_pixels:
-            trials = 0
-            while n_nans > self.max_pixels and trials < self.max_trials:
-                # Get a new point
-                point = self._select_random_points(1)[0]
-                cutted_mask = original_nan_mask[day - 1, point[0]:point[0] + self.final_nrows, point[1]:point[1] + self.final_ncols]
-                n_nans = th.sum(~cutted_mask).float()
-                trials += 1
-            if trials == self.max_trials:
-                raise ValueError(f"Could not find a valid cutted image after {trials} trials. The image has too many nans.")
         return point, cutted_mask
 
     def cut(self, files_to_days_and_points_dict: dict, file_paths: list) -> th.Tensor:
@@ -447,8 +458,8 @@ class CutImages:
                 
                 # Supposing channel 0 is the SST, channel 1 is the stdev, channel 2 is the latitude and the channel 3 is the longitude
                 dataset[B, C, :, :] = original_file[day_idx, 0, point[0]:point[0] + self.final_nrows, point[1]:point[1] + self.final_ncols]
-                stdev_layer = original_file[day_idx, 1, point[0]:point[0] + self.final_nrows, point[1]:point[1] + self.final_ncols]
-                dataset[B, C, :, :] = dataset[B, C, :, :] / (stdev_layer + guard_val)  # Normalize SST by stdev
+                # stdev_layer = original_file[day_idx, 1, point[0]:point[0] + self.final_nrows, point[1]:point[1] + self.final_ncols]
+                # dataset[B, C, :, :] = dataset[B, C, :, :] / (stdev_layer + guard_val)  # Normalize SST by stdev
                 
                 if C == center_day_idx:
                     # Fill the dataset with stdev, lats, lons

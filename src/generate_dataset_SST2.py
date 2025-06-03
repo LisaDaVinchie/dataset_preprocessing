@@ -80,46 +80,58 @@ def main():
     print("Creating dataset")
     dataset["images"] = th.nan_to_num(cutted_images, nan=nan_placeholder)
     
+    # n_images = cutted_images.shape[0]
+    # batch_size = 1000
+    # channels_to_norm = range(0, 9)
+    
+    # lat_idx = 10
+    # lon_idx = 11
+    
+    # lat_range = [-90, 90]
+    # lon_range = [-180, 180]
+    # scale_factor_lat = 1 / (lat_range[1] - lat_range[0])
+    # scale_factor_lon = 1 / (lon_range[1] - lon_range[0])
+    
+    # norm_images = cutted_images.clone()
+    
     # if n_images < batch_size:
         
-        # min_val = th.min(cutted_images[:, channels_to_norm, :, :][nan_masks[:, channels_to_norm, :, :]])
-        # max_val = th.max(cutted_images[:, channels_to_norm, :, :][nan_masks[:, channels_to_norm, :, :]])
+    #     min_val = th.min(cutted_images[:, channels_to_norm, :, :][nan_masks[:, channels_to_norm, :, :]])
+    #     max_val = th.max(cutted_images[:, channels_to_norm, :, :][nan_masks[:, channels_to_norm, :, :]])
         
-        # minmax = th.tensor([min_val, max_val])
+    #     minmax = th.tensor([min_val, max_val])
         
-        # scale_factor = 1 / (max_val - min_val)
+    #     scale_factor = 1 / (max_val - min_val)
         
-        # norm_images = cutted_images.clone()
-        # for c in channels_to_norm:
-        #     norm_images[:, c, :, :] = ((cutted_images[:, c, :, :] - min_val) * scale_factor)
-        #     norm_images[:, c, :, :][~nan_masks[:, c, :, :]] = nan_placeholder
+    #     for c in channels_to_norm:
+    #         norm_images[:, c, :, :] = ((cutted_images[:, c, :, :] - min_val) * scale_factor)
+    #         norm_images[:, c, :, :][~nan_masks[:, c, :, :]] = nan_placeholder
             
-        #     norm_images[:, lat_idx, :, :] = (cutted_images[:, lat_idx, :, :] - lat_range[0]) * scale_factor_lat
+    #         norm_images[:, lat_idx, :, :] = (cutted_images[:, lat_idx, :, :] - lat_range[0]) * scale_factor_lat
         
-        #     lon_idx = 11
-        #     norm_images[:, lon_idx, :, :] = (cutted_images[:, lon_idx, :, :] - lon_range[0]) * scale_factor_lon
+    #         norm_images[:, lon_idx, :, :] = (cutted_images[:, lon_idx, :, :] - lon_range[0]) * scale_factor_lon
     
     # else:
-        # min_val, max_val = th.inf, -th.inf
-        # for i in range(0, n_images, batch_size):
-        #     n_images_batch = min(batch_size, n_images - i)
-        #     batch_img = cutted_images[i:i+n_images_batch, channels_to_norm, :, :][nan_masks[i:i+n_images_batch, channels_to_norm, :, :]]
-        #     print("Batch shape:", batch_img.shape)
-        #     new_min_val = th.min(batch_img)
-        #     new_max_val = th.max(batch_img)
-        #     min_val = min(min_val, new_min_val)
-        #     max_val = max(max_val, new_max_val)
-        # minmax = th.tensor([min_val, max_val])
+    #     min_val, max_val = th.inf, -th.inf
+    #     for i in range(0, n_images, batch_size):
+    #         n_images_batch = min(batch_size, n_images - i)
+    #         batch_img = cutted_images[i:i+n_images_batch, channels_to_norm, :, :][nan_masks[i:i+n_images_batch, channels_to_norm, :, :]]
+    #         print("Batch shape:", batch_img.shape)
+    #         new_min_val = th.min(batch_img)
+    #         new_max_val = th.max(batch_img)
+    #         min_val = min(min_val, new_min_val)
+    #         max_val = max(max_val, new_max_val)
+    #     minmax = th.tensor([min_val, max_val])
         
-        # scale_factor = 1 / (max_val - min_val)
+    #     scale_factor = 1 / (max_val - min_val)
         
-        # for i in range(0, n_images, batch_size):
-        #     n_images_batch = min(batch_size, n_images - i)
+    #     for i in range(0, n_images, batch_size):
+    #         n_images_batch = min(batch_size, n_images - i)
             
-        #     # norm_images[i:i+n_images_batch, channels_to_norm, :, :] = ((cutted_images[i:i+n_images_batch, channels_to_norm, :, :] - min_val) * scale_factor)
-        #     # norm_images[i:i+n_images_batch, channels_to_norm, :, :][~nan_masks[i:i+n_images_batch, channels_to_norm, :, :]] = nan_placeholder
+    #         norm_images[i:i+n_images_batch, channels_to_norm, :, :] = ((cutted_images[i:i+n_images_batch, channels_to_norm, :, :] - min_val) * scale_factor)
+    #         norm_images[i:i+n_images_batch, channels_to_norm, :, :][~nan_masks[i:i+n_images_batch, channels_to_norm, :, :]] = nan_placeholder
             
-        #     norm_images[i:i+n_images_batch, :, :, :] = th.where(nan_masks[i:i+n_images_batch, :, :, :], norm_images[i:i+n_images_batch, :, :, :], nan_placeholder)
+    #         norm_images[i:i+n_images_batch, :, :, :] = th.where(nan_masks[i:i+n_images_batch, :, :, :], norm_images[i:i+n_images_batch, :, :, :], nan_placeholder)
     
     # dataset["images"] = norm_images
     
@@ -169,7 +181,24 @@ def create_masks(params, cutted_images, nan_masks):
     
     mask_class = initialize_mask_kind(params)
     n_images = cutted_images.shape[0]
-    masks[:, c, :, :] = th.stack([mask_class.mask() for _ in range(n_images)], dim=0)
+    # masks[:, c, :, :] = th.stack([mask_class.mask() for _ in range(n_images)], dim=0)
+    
+    mask_w = mask_class.square_nrows
+    
+    max_pixels = int(0.3 * mask_w * mask_w)
+    max_trials = 1000
+    
+    for i in range(n_images):
+        mask = mask_class.mask()
+        n_nans_in_mask = th.sum(~nan_masks[i, c, :, :] & ~mask)
+        trials = 0
+        while n_nans_in_mask > max_pixels and trials < max_trials:
+            mask = mask_class.mask()
+            n_nans_in_mask = th.sum(~nan_masks[i, c, :, :] & ~mask)
+            trials += 1
+        if trials == max_trials:
+            raise ValueError(f"Could not create a valid mask for image {i} after {max_trials} trials. Please check the parameters.")
+    
     return th.logical_and(masks, nan_masks)
     
 class CutImages:
@@ -251,25 +280,7 @@ class CutImages:
                 available_days[path] = available_days[path][:-self.surrounding_days]
             
         return available_days
-    
-    def _select_random_points(self, n_points: int) -> list[tuple]:
-        """Select random points in the original image, to use as top-left corners for the cutted images
 
-        Args:
-            n_points (int): number of random points to select
-
-        Returns:
-            list: list of tuples with the random points as (x, y) coordinates
-        """
-        
-        max_x = self.original_nrows - self.final_nrows
-        max_y = self.original_ncols - self.final_ncols
-        
-        random_x = [random.randint(0, max_x - 1) for _ in range(n_points)]
-        random_y = [random.randint(0, max_y - 1) for _ in range(n_points)]
-        
-        random_points = [(x, y) for x, y in zip(random_x, random_y)]
-        return random_points
     
     def _map_random_points_to_days(self, path_list: list) -> dict:
         """Assign the points to some random images
@@ -284,7 +295,10 @@ class CutImages:
         days_list = self._get_available_days(path_list)
         paths = list(days_list.keys())
         
-        points_list = self._select_random_points(self.n_images)
+        x_start = 1115
+        y_start = 1800
+        
+        points_list = [(x_start, y_start) for _ in range(self.n_images)] # Start with a single point
         
         points_to_days = {}
         
@@ -386,19 +400,6 @@ class CutImages:
         
         cutted_mask = original_nan_mask[day - 1, point[0]:point[0] + self.final_nrows, point[1]:point[1] + self.final_ncols]
                 
-        n_nans = th.sum(~cutted_mask).float()
-                
-        # Check if the cutted image has too many nans
-        if n_nans > self.max_pixels:
-            trials = 0
-            while n_nans > self.max_pixels and trials < self.max_trials:
-                # Get a new point
-                point = self._select_random_points(1)[0]
-                cutted_mask = original_nan_mask[day - 1, point[0]:point[0] + self.final_nrows, point[1]:point[1] + self.final_ncols]
-                n_nans = th.sum(~cutted_mask).float()
-                trials += 1
-            if trials == self.max_trials:
-                raise ValueError(f"Could not find a valid cutted image after {trials} trials. The image has too many nans.")
         return point, cutted_mask
 
     def cut(self, files_to_days_and_points_dict: dict, file_paths: list) -> th.Tensor:
