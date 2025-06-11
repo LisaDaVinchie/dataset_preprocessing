@@ -8,6 +8,12 @@ src/login.json
 # Jupyter Notebooks
 src/*.ipynb
 
+# Log files
+logs/
+
+# Bot codes
+bot_codes.txt
+
 # The virtual environment
 venv_dataset/
 
