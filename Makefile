@@ -51,7 +51,7 @@ NEXT_MINMAX_PATH := $(MINMAX_DIR)/$(MINMAX_BASENAME)_$(NEXT_IDX)$(MINMAX_FILE_EX
 PATHS_FILE := $(SRC_DIR)/paths.json
 PARAMS_FILE := $(SRC_DIR)/params.json
 
-.PHONY: config download convert cut test help
+.PHONY: config download convert cut cut5 test help
 
 config:
 	@echo "Storing paths to json..."
@@ -92,6 +92,9 @@ convert: config
 
 cut: config
 	$(PYTHON) $(SRC_DIR)/generate_dataset.py --paths $(PATHS_FILE) --params $(PARAMS_FILE)
+
+cut5: config
+	$(PYTHON) $(SRC_DIR)/generate_dataset_SST5.py --paths $(PATHS_FILE) --params $(PARAMS_FILE)
 
 test:
 	@echo "Running tests in $(TEST_DIR)"
