@@ -146,6 +146,11 @@ def main():
     th.save(nan_masks, nanmasks_path)
     print(f"Nan masks saved to {nanmasks_path}\n")
     
+    print("Saving minmax values")
+    # Save the min and max values
+    th.save(minmax, minmax_path)
+    print(f"Min and max values saved to {minmax_path}\n")
+    
     print("Saving specs")
     # Extract the "dataset" and "mask" sections
     dataset_section = params["dataset"]
