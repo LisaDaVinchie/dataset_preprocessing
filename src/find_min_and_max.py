@@ -13,11 +13,16 @@ def find_min_and_max(tensor: th.Tensor) -> tuple:
     Returns:
         tuple: A tuple containing the minimum and maximum values.
     """
-    if not isinstance(tensor, th.Tensor):
-        raise TypeError("Input must be a PyTorch tensor.")
+    
+    nan_mask = th.isnan(tensor)
+    
+    if nan_mask.all():
+        return th.inf.item(), -th.inf.item()
+    
+    non_nan_tensor = tensor[~nan_mask]
 
-    min_val = th.min(tensor)
-    max_val = th.max(tensor)
+    min_val = th.min(non_nan_tensor)
+    max_val = th.max(non_nan_tensor)
 
     return min_val.item(), max_val.item()
 
