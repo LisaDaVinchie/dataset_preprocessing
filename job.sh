@@ -23,7 +23,7 @@ notify_telegram() {
 trap 'notify_telegram "FAILED (job terminated or timed out)"' TERM EXIT
 
 if [ -z "$VIRTUAL_ENV" ]; then
-    source venv_inpainting/bin/activate || { echo "Failed to activate virtual environment"; exit 1; }
+    source venv_dataset/bin/activate || { echo "Failed to activate virtual environment"; exit 1; }
 fi
 
 ulimit -a
