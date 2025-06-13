@@ -11,6 +11,9 @@ src/*.ipynb
 # Log files
 logs/
 
+# Transfer files
+transfer.sh
+
 # Bot codes
 bot_codes.txt
 
