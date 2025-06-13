@@ -33,13 +33,13 @@ def main():
     
     files_paths = list(processed_data_dir.glob("*.pt"))
     if not files_paths:
-        raise FileNotFoundError(f"No .pt files found in {processed_data_dir}.")
+        raise FileNotFoundError(f"No .pt files found in {processed_data_dir}.", flush=True)
     
     print(f"Found {len(files_paths)} files in {processed_data_dir}.")
     
     min_val, max_val = float('inf'), float('-inf')
     for file_path in files_paths:
-        print(f"Processing file: {file_path}")
+        print(f"Processing file: {file_path}", flush=True)
         tensor = th.load(file_path)
         if not isinstance(tensor, th.Tensor):
             raise TypeError(f"File {file_path} does not contain a PyTorch tensor.")
@@ -48,12 +48,12 @@ def main():
         file_min, file_max = find_min_and_max(tensor[:, 0, :, :])
         min_val = min(min_val, file_min)
         max_val = max(max_val, file_max)
-        print(f"File {file_path} - Min: {file_min}, Max: {file_max}\n")
+        print(f"File {file_path} - Min: {file_min}, Max: {file_max}\n", flush=True)
     
     th.save(th.tensor([min_val, max_val]), processed_data_dir / "min_max.pt")
-    print(f"Minimum value: {min_val}, Maximum value: {max_val}")
-    print(f"Results saved to {processed_data_dir / 'min_max.pt'}")
-    print(f"Total time taken: {time() - start_time:.2f} seconds")
+    print(f"Minimum value: {min_val}, Maximum value: {max_val}", flush=True)
+    print(f"Results saved to {processed_data_dir / 'min_max.pt'}", flush=True)
+    print(f"Total time taken: {time() - start_time:.2f} seconds", flush=True)
     
     
 if __name__ == "__main__":
