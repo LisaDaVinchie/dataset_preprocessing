@@ -44,7 +44,8 @@ def main():
         if not isinstance(tensor, th.Tensor):
             raise TypeError(f"File {file_path} does not contain a PyTorch tensor.")
         
-        file_min, file_max = find_min_and_max(tensor)
+        # Assuming the first channel is the one with the temperatures
+        file_min, file_max = find_min_and_max(tensor[:, 0, :, :])
         min_val = min(min_val, file_min)
         max_val = max(max_val, file_max)
         print(f"File {file_path} - Min: {file_min}, Max: {file_max}\n")
@@ -53,5 +54,7 @@ def main():
     print(f"Minimum value: {min_val}, Maximum value: {max_val}")
     print(f"Results saved to {processed_data_dir / 'min_max.pt'}")
     print(f"Total time taken: {time() - start_time:.2f} seconds")
+    
+    
 if __name__ == "__main__":
     main()
