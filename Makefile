@@ -51,7 +51,7 @@ NEXT_MINMAX_PATH := $(MINMAX_DIR)/$(MINMAX_BASENAME)_$(NEXT_IDX)$(MINMAX_FILE_EX
 PATHS_FILE := $(SRC_DIR)/paths.json
 PARAMS_FILE := $(SRC_DIR)/params.json
 
-.PHONY: config download convert cut cut5 test help
+.PHONY: config download convert cut cut5 test help minmax
 
 config:
 	@echo "Storing paths to json..."
@@ -89,6 +89,9 @@ download: config
 
 convert: config
 	$(PYTHON) $(SRC_DIR)/netcdf_to_torch.py --paths $(PATHS_FILE) --params $(PARAMS_FILE)
+
+minmax: config
+	$(PYTHON) $(SRC_DIR)/find_min_and_max.py --paths $(PATHS_FILE) --params $(PARAMS_FILE)
 
 cut: config
 	$(PYTHON) $(SRC_DIR)/generate_dataset.py --paths $(PATHS_FILE) --params $(PARAMS_FILE)
