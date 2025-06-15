@@ -27,6 +27,7 @@ from utils.parse_params import parse_input_paths
 def main():
     start_time = time()
     params, paths = parse_input_paths()
+    print("Parameters and paths parsed\n", flush=True)
     
     dataset_kind = str(params["dataset"]["dataset_kind"])
     nan_placeholder = params["dataset"]["nan_placeholder"]
@@ -52,10 +53,11 @@ def main():
     for path in [dataset_path, specs_path, nanmasks_path, minmax_path]:
         if not path.parent.exists():
             raise ValueError(f"Output directory {path.parent} does not exist.")
+    print(f"Dataset will be saved to {dataset_path}\n", flush=True)
     
     # Initialize the mask kind
     cut = CutImages(params)
-    print("Class initialized\n")
+    print("Class initialized\n", flush=True)
     
     # Get the paths to the files
     original_nan_masks_paths = list(original_nan_masks_dir.glob("[0-9][0-9][0-9][0-9]_[0-9][0-9].pt"))
@@ -65,9 +67,9 @@ def main():
     
     # Map the random points to the days
     
-    print("Mapping the random points to the days")
+    print("Mapping the random points to the days", flush=True)
     final_dict, _, masks = cut.get_data_paths_to_dataset_idx_dict(original_nan_masks_paths, processed_data_dir)
-    print("Mapping done\n")
+    print("Mapping done\n", flush=True)
     
     # Get the paths to the files
     original_data_paths = list(processed_data_dir.glob("[0-9][0-9][0-9][0-9]_[0-9][0-9].pt"))
@@ -76,13 +78,13 @@ def main():
     original_data_paths.sort()
     
     # Cut the images
-    print("Cutting the images")
+    print("Cutting the images", flush=True)
     cutted_images = cut.cut(final_dict)
-    print("Cutting done\n")
+    print("Cutting done\n", flush=True)
     nan_masks = ~th.isnan(cutted_images)
-    print("Nan masks created\n")
+    print("Nan masks created\n", flush=True)
     
-    print("Creating dataset")
+    print("Creating dataset", flush=True)
     dataset = {}
     norm_images = th.nan_to_num(cutted_images, nan=nan_placeholder)
     dataset["images"] = norm_images
@@ -90,19 +92,19 @@ def main():
     
     # dataset["masks"] = create_masks(params, cutted_images, nan_masks)
     
-    print("Dataset created\n")
+    print("Dataset created\n", flush=True)
     
     # Save the cutted images
-    print("Saving dataset")
+    print("Saving dataset", flush=True)
     th.save(dataset, dataset_path, _use_new_zipfile_serialization=False)
-    print(f"Dataset saved to {dataset_path}\n")
+    print(f"Dataset saved to {dataset_path}\n", flush=True)
     
     # Save the nan masks
-    print("Saving nan masks")
+    print("Saving nan masks", flush=True)
     th.save(nan_masks, nanmasks_path, _use_new_zipfile_serialization=False)
-    print(f"Nan masks saved to {nanmasks_path}\n")
+    print(f"Nan masks saved to {nanmasks_path}\n", flush=True)
     
-    print("Saving specs")
+    print("Saving specs", flush=True)
     # Extract the "dataset" and "mask" sections
     dataset_section = params["dataset"]
     masks = params["masks"]
@@ -117,9 +119,9 @@ def main():
     with open(specs_path, 'w') as f:
         json.dump(sections_to_save, f, indent=4)
 
-    print(f"Specs saved to {specs_path}\n")
+    print(f"Specs saved to {specs_path}\n", flush=True)
     
-    print("Elapsed time: ", time() - start_time)
+    print(f"Elapsed time: {time() - start_time:.2f} seconds\n", flush=True)
 
 def create_masks(params, cutted_images, nan_masks):
     masks = th.ones_like(cutted_images, dtype=th.bool)
@@ -265,7 +267,7 @@ class CutImages:
             if i < self.n_images and k == len(path_list):
                 k = random.randint(0, len(path_list) - 1)  # Randomly select a path from the list if we are at the last path
             path = path_list[k]
-            print(f"Processing file {path.stem}")            
+            print(f"Processing file {path.stem}", flush=True)        
             # Select the number of images for this month using a Gaussian distribution centered at mean_img_per_day
             n_days_per_file = round(random.gauss(mean_img_per_day, mean_img_per_day / 3))
             n_images_this_month = int(max(0, min(self.n_images, n_days_per_file)))
@@ -275,20 +277,20 @@ class CutImages:
             max_day = original_nan_mask.shape[0]  # Assuming the first dimension is the number of days
             if path == path_list[0]:
                 min_day = self.surrounding_days + 1  # Skip the first surrounding days for the first image
-                print(f"day range for path {path.stem} is {min_day}-{max_day}")
+                print(f"day range for path {path.stem} is {min_day}-{max_day}", flush=True)
             if path == path_list[-1]:
                 max_day = original_nan_mask.shape[0] - self.surrounding_days
-                print(f"day range for path {path.stem} is {min_day}-{max_day}")
+                print(f"day range for path {path.stem} is {min_day}-{max_day}", flush=True)
             available_days = [day for day in range(min_day, max_day + 1)]
             
             year_month_str = Path(path).stem
             
             while n_images_this_month > 0:
                 if i >= self.n_images:
-                    print(f"Reached the maximum number of images: {self.n_images}. Stopping.")
+                    print(f"Reached the maximum number of images: {self.n_images}. Stopping.", flush=True)
                     break
                 if len(available_days) <= 0:
-                    print(f"No available days for path {path.stem}. Skipping this month.")
+                    print(f"No available days for path {path.stem}. Skipping this month.", flush=True)
                     k += 1
                     break
                 
@@ -308,7 +310,7 @@ class CutImages:
                     n_nans_in_mask = th.sum(~(cutted_mask | mask))
                     trials += 1
                 if trials == self.max_trials:
-                    print(f"\tcould not find a mask with enough valid pixels after {trials} trials")
+                    print(f"\tcould not find a mask with enough valid pixels after {trials} trials", flush=True)
                     continue  # Skip this day if the mask is not valid after max_trials
                 
                 nan_mask_tensor[i, :, :] = cutted_mask
