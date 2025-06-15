@@ -1,3 +1,11 @@
+########################################################################
+#
+#   Generate non normalized dataset
+#   DINCAE 2.0 style
+#
+#########################################################################
+
+
 import torch as th
 from pathlib import Path
 import math
@@ -8,7 +16,6 @@ from time import time
 import json
 import os
 import sys
-import pickle
 
 path_to_append = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(path_to_append)
@@ -421,6 +428,7 @@ class CutImages:
         return dataset     
             
     def _get_encoded_time(self, day: int) -> float:
+        print(f"Encoding time for day {day}")
         norm_const = 1 / 365.25
         return math.cos(2 * math.pi * day * norm_const)
 
