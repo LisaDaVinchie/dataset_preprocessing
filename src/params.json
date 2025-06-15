@@ -1,8 +1,8 @@
 {
     "dataset":{ 
-        "cutted_nrows": 256,
-        "cutted_ncols": 256,
-        "n_cutted_images": 1000,
+        "cutted_nrows": 128,
+        "cutted_ncols": 128,
+        "n_cutted_images": 5000,
         "nans_threshold": 0.3,
         "total_days": 9,
         "nan_placeholder": -300.0,
