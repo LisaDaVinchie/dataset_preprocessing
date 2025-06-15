@@ -399,7 +399,7 @@ class CutImages:
         scale_factor_lon = 1 / (lon_range[1] - lon_range[0])
 
         for path in paths_list:
-            print(f"Processing file {path}")
+            print(f"Processing file {path}", flush=True)
             original_file = th.load(path)
             
             points_list = files_to_days_and_points_dict[path]
@@ -427,7 +427,7 @@ class CutImages:
                     dataset[B, 12, :, :] = 2 * (original_file[day_idx, 3, point[0]:point[0] + self.final_nrows, point[1]:point[1] + self.final_ncols] - lon_range[0]) * scale_factor_lon - 1
                 
             
-            print(f"File {path} processed\n")
+            print(f"File {path} processed\n", flush=True)
         return dataset     
             
     def _get_encoded_time(self, day_str: str, date_format = "%Y_%m_%d") -> float:
