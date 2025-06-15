@@ -28,7 +28,7 @@ fi
 
 ulimit -a
 
-make train || { echo "Training failed"; exit 1; }
+make cut6 || { echo "Cutting failed"; exit 1; }
 
 notify_telegram "SUCCESS"
 
