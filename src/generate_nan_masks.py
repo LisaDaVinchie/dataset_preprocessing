@@ -18,7 +18,10 @@ if not processed_data_dir.exists():
 if not original_nan_masks_dir.exists():
     raise ValueError(f"Original nan masks directory {original_nan_masks_dir} does not exist.")
 
-original_data_paths = list(processed_data_dir.glob("*.pt"))
+original_data_paths = list(processed_data_dir.glob("[0-9][0-9][0-9][0-9]_[0-9][0-9].pt"))
+
+if not original_data_paths:
+    raise ValueError(f"No original data files found in {processed_data_dir}.")
 
 for path in original_data_paths:
     print(f"Processing {path.name}...")
