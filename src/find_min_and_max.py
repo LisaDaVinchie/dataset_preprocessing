@@ -36,21 +36,26 @@ def main():
     if not processed_data_dir.exists():
         raise FileNotFoundError(f"Processed data directory {processed_data_dir} does not exist.")
     
-    files_paths = list(processed_data_dir.glob("*.pt"))
+    files_paths = list(processed_data_dir.glob("[0-9][0-9][0-9][0-9]_[0-9][0-9].pt"))
     if not files_paths:
         raise FileNotFoundError(f"No .pt files found in {processed_data_dir}.", flush=True)
     
     print(f"Found {len(files_paths)} files in {processed_data_dir}.")
     
     min_val, max_val = float('inf'), float('-inf')
+    start_row = 1030
+    start_col = 1280
+    end_row = start_row + 168
+    end_col = start_col + 144
     for file_path in files_paths:
         print(f"Processing file: {file_path}", flush=True)
         tensor = th.load(file_path)
+        
         if not isinstance(tensor, th.Tensor):
             raise TypeError(f"File {file_path} does not contain a PyTorch tensor.")
         
         # Assuming the first channel is the one with the temperatures
-        file_min, file_max = find_min_and_max(tensor[:, 0, :, :])
+        file_min, file_max = find_min_and_max(tensor[:, 0, start_row:end_row, start_col:end_col])
         min_val = min(min_val, file_min)
         max_val = max(max_val, file_max)
         print(f"File {file_path} - Min: {file_min}, Max: {file_max}\n", flush=True)

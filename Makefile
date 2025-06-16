@@ -108,6 +108,9 @@ cut5: config
 cut6: config
 	$(PYTHON) $(SRC_DIR)/generate_dataset_SST6.py --paths $(PATHS_FILE) --params $(PARAMS_FILE)
 
+cut7: config
+	$(PYTHON) $(SRC_DIR)/generate_dataset_SST7.py --paths $(PATHS_FILE) --params $(PARAMS_FILE)
+
 test:
 	@echo "Running tests in $(TEST_DIR)"
 	$(PYTHON) -m unittest discover -s $(TEST_DIR) -p "*test.py"
