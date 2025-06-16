@@ -13,6 +13,7 @@ logs/
 
 # Transfer files
 transfer.sh
+upload_dataset.sh
 
 # Bot codes
 bot_codes.txt
