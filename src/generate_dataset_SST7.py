@@ -46,22 +46,21 @@ def main():
     dataset_paths = paths["dataset"]
     dataset_path = Path(dataset_paths["next_dataset_path"])
     specs_path = Path(dataset_paths["next_specs_path"])
-    nanmasks_path = Path(dataset_paths["next_nanmasks_path"])
-    minmax_path = Path(dataset_paths["next_minmax_path"])
-    for path in [dataset_path, specs_path, nanmasks_path, minmax_path]:
+    mean_std_file_path = Path(dataset_paths["next_minmax_path"])
+    for path in [dataset_path, specs_path]:
         if not path.parent.exists():
             raise ValueError(f"Output directory {path.parent} does not exist.")
     print(f"Dataset will be saved to {dataset_path}\n", flush=True)
     
-    minmax_path = processed_data_dir / "min_max.pt"
+    mean_std_file_path = processed_data_dir / "mean_std.pt"
     
-    if not minmax_path.exists():
-        raise ValueError(f"Min-max file {minmax_path} does not exist. Please run find_min_and_max.py first.")
+    if not mean_std_file_path.exists():
+        raise ValueError(f"Mean_std file {mean_std_file_path} does not exist.")
     
-    minmax = th.load(minmax_path)
+    meanstd = th.load(mean_std_file_path)
     
     # Initialize the mask kind
-    cut = CutImages(params, minmax)
+    cut = CutImages(params, meanstd)
     print("Class initialized\n", flush=True)
     
     # Get the paths to the files
@@ -93,7 +92,10 @@ def main():
     dataset = {}
     norm_images = th.nan_to_num(cutted_images, nan=nan_placeholder)
     dataset["images"] = norm_images
-    dataset["masks"] = th.logical_and(nan_masks, masks)
+    dataset["masks"] = masks
+    dataset["nanmasks"] = nan_masks
+    dataset["mean"] = meanstd[0]
+    dataset["std"] = meanstd[1]
     
     # dataset["masks"] = create_masks(params, cutted_images, nan_masks)
     
@@ -103,11 +105,6 @@ def main():
     print("Saving dataset", flush=True)
     th.save(dataset, dataset_path, _use_new_zipfile_serialization=False)
     print(f"Dataset saved to {dataset_path}\n", flush=True)
-    
-    # Save the nan masks
-    print("Saving nan masks", flush=True)
-    th.save(nan_masks, nanmasks_path, _use_new_zipfile_serialization=False)
-    print(f"Nan masks saved to {nanmasks_path}\n", flush=True)
     
     print("Saving specs", flush=True)
     # Extract the "dataset" and "mask" sections
@@ -154,10 +151,10 @@ def create_masks(params, cutted_images, nan_masks):
         if trials == max_trials:
             raise ValueError(f"Could not create a valid mask for image {i} after {max_trials} trials. Please check the parameters.")
     
-    return th.logical_and(masks, nan_masks)
+    return masks
     
 class CutImages:
-    def __init__(self, params, minmax, original_nrows: int = None, original_ncols: int = None, final_nrows: int = None, final_ncols: int = None, n_images: int = None, nans_perc: float = None, total_days: int = None, max_trials: int = 200):
+    def __init__(self, params, mean_std, original_nrows: int = None, original_ncols: int = None, final_nrows: int = None, final_ncols: int = None, n_images: int = None, nans_perc: float = None, total_days: int = None, max_trials: int = 200):
         self.params = params
         self.original_nrows = original_nrows
         self.original_ncols = original_ncols
@@ -172,8 +169,9 @@ class CutImages:
         self.surrounding_days = self.total_days // 2
         self.max_pixels = int(self.final_nrows * self.final_ncols * self.nans_threshold)
         
-        self.min_val = minmax[0].item()
-        self.max_val = minmax[1].item()
+        self.mean_val = mean_std[0].item()
+        std_val = mean_std[1].item()
+        self.std_inv = 1 / std_val if std_val != 0 else 1.0  # Avoid division by zero
         
         self.mask_class = initialize_mask_kind(params)
         
@@ -421,7 +419,7 @@ class CutImages:
                 day_idx = day - 1
                 # Supposing channel 0 is the SST, channel 1 is the stdev, channel 2 is the latitude and the channel 3 is the longitude
                 cutted = original_file[day_idx, 0, point[0]:point[0] + self.final_nrows, point[1]:point[1] + self.final_ncols]
-                dataset[B, C, :, :] = 2 * (cutted - self.min_val) / (self.max_val - self.min_val) - 1
+                dataset[B, C, :, :] = (cutted - self.mean_val) * self.std_inv
                 
                 # If the channnel is the one with the data to inpaint
                 # Add info about the day of the year, latitude and longitude
