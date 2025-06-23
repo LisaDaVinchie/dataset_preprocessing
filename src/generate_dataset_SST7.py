@@ -168,6 +168,7 @@ class CutImages:
         self._check_params()
         self.surrounding_days = self.total_days // 2
         self.max_pixels = int(self.final_nrows * self.final_ncols * self.nans_threshold)
+        self.channel_to_mask = self.total_days // 2  # The channel to mask is the middle one, which corresponds to the current day
         
         self.mean_val = mean_std[0].item()
         std_val = mean_std[1].item()
@@ -211,6 +212,8 @@ class CutImages:
             raise ValueError("The cutted image dimensions must be smaller than the original image dimensions.")
         if self.total_days <= 0 or self.total_days > 28:
             raise ValueError("The total number of days must be greater than 0 and less than 28.")
+        if self.total_days % 2 == 0:
+            raise ValueError("The total number of days must be an odd number to have a middle day for the mask.")
         
     def _get_available_days(self, path_list: list) -> dict:
         """Get the available days in the month list
@@ -320,7 +323,7 @@ class CutImages:
                     continue  # Skip this day if the mask is not valid after max_trials
                 
                 nan_mask_tensor[i, :, :] = cutted_mask
-                init_masks[i, 4, :, :] = mask
+                init_masks[i, self.channel_to_mask, :, :] = mask
                 
                 year_month_day_str = f"{year_month_str}_{day:02d}"
                 
@@ -427,11 +430,11 @@ class CutImages:
                     day_str = f"{month_str}_{day:02d}"
                     encoded_time_cos, encoded_time_sin = self._get_encoded_time(day_str)
                     
-                    dataset[B, 9, :, :] = th.ones((self.final_nrows, self.final_ncols), dtype=th.float32) * encoded_time_cos
-                    dataset[B, 10, :, :] = th.ones((self.final_nrows, self.final_ncols), dtype=th.float32) * encoded_time_sin
+                    dataset[B, self.total_days, :, :] = th.ones((self.final_nrows, self.final_ncols), dtype=th.float32) * encoded_time_cos
+                    dataset[B, self.total_days + 1, :, :] = th.ones((self.final_nrows, self.final_ncols), dtype=th.float32) * encoded_time_sin
                     # Normalize the latitude and longitude to [-1, 1]
-                    dataset[B, 11, :, :] = 2 * (original_file[day_idx, 2, point[0]:point[0] + self.final_nrows, point[1]:point[1] + self.final_ncols] - lat_range[0]) * scale_factor_lat - 1
-                    dataset[B, 12, :, :] = 2 * (original_file[day_idx, 3, point[0]:point[0] + self.final_nrows, point[1]:point[1] + self.final_ncols] - lon_range[0]) * scale_factor_lon - 1
+                    dataset[B, self.total_days + 2, :, :] = 2 * (original_file[day_idx, 2, point[0]:point[0] + self.final_nrows, point[1]:point[1] + self.final_ncols] - lat_range[0]) * scale_factor_lat - 1
+                    dataset[B, self.total_days + 3, :, :] = 2 * (original_file[day_idx, 3, point[0]:point[0] + self.final_nrows, point[1]:point[1] + self.final_ncols] - lon_range[0]) * scale_factor_lon - 1
                 
             
             print(f"File {path} processed\n", flush=True)
