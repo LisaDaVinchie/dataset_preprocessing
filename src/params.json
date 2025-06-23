@@ -10,45 +10,9 @@
         "_possible_mask_kinds": ["square", "lines"],
         "same_mask": false,
         "dataset_kind": "temperature",
-        "_possible_dataset_kinds": ["ensemble_physics", "biochemistry", "temperature"],
+        "_possible_dataset_kinds": ["temperature"],
         "year_range": [2021, 2021],
         "month_range": [1, 12],
-        "ensemble_physics":{
-            "n_rows": 681,
-            "n_cols": 1440,
-            "masked_channels": [0, 1, 2, 3],
-            "channels_to_keep": ["so_mean", "uo_mean", "vo_mean", "zos_mean"],
-            "channels": ["thetao_mean", "so_mean", "uo_mean", "vo_mean", "zos_mean", "mlotst_mean", "siconc_mean", "sithick_mean", "thetao_std", "so_std", "uo_std", "vo_std", "zos_std", "mlotst_std", "siconc_std", "sithick_std"],
-            "dataset_id": "cmems_mod_glo_phy-mnstd_my_0.25deg_P1D-m",
-            "longitude_range": [-180, 179.75],
-            "latitude_range": [-80, 90],
-            "depth_range": [0.5057600140571594, 0.5057600140571594]
-        },
-        "biochemistry":{
-            "n_rows": 681,
-            "n_cols": 1440,
-            "dataset_id": "cmems_mod_glo_bgc-name_anfc_0.25deg_P1D-m",
-            "longitude_range": [-180, 179.75],
-            "latitude_range": [-80, 90],
-            "depth_range": [0.4940253794193268, 0.4940253794193268],
-            "channels_to_keep": ["nppv", "o2", "ph", "dissic", "talk", "spco2", "no3", "po4", "si", "fe", "phyc", "chl"],
-            "subfolders": ["bio", "car", "co2", "nut", "pft"],
-            "bio":{
-                "channels": ["nppv", "o2"]
-            },
-            "car":{
-                "channels": ["dissic", "ph", "talk"]
-            },
-            "co2":{
-                "channels": ["spco2"]
-            },
-            "nut":{
-                "channels": ["fe", "no3", "po4", "si"]
-            },
-            "pft":{
-                "channels": ["chl", "phyc"]
-            }
-        },
         "temperature":{
             "n_rows": 1600,
             "n_cols": 3600,
