@@ -169,6 +169,7 @@ class CutImages:
         self.surrounding_days = self.total_days // 2
         self.max_pixels = int(self.final_nrows * self.final_ncols * self.nans_threshold)
         self.channel_to_mask = self.total_days // 2  # The channel to mask is the middle one, which corresponds to the current day
+        self.n_channels = self.total_days + 4  # Total days + 2 surrounding days + 2 for sin and cos
         
         self.mean_val = mean_std[0].item()
         std_val = mean_std[1].item()
@@ -256,7 +257,7 @@ class CutImages:
         
         # Initialize nan masks tensor
         nan_mask_tensor = th.ones((self.n_images, self.final_nrows, self.final_ncols), dtype=th.bool)
-        init_masks = th.ones((self.n_images, 13, self.final_nrows, self.final_ncols), dtype=th.bool)
+        init_masks = th.ones((self.n_images, self.n_channels, self.final_nrows, self.final_ncols), dtype=th.bool)
         
         point = (1030, 1280)  # Starting point for the cutted images
         
@@ -395,10 +396,9 @@ class CutImages:
             th.Tensor: tensor with the cutted images. Shape: (n_images, n_channels, final_nrows, final_ncols)
         """
         
-        n_channels = self.total_days + 4
         center_day_idx = self.surrounding_days
         
-        dataset = th.ones((self.n_images, n_channels, self.final_nrows, self.final_ncols), dtype=th.float32)
+        dataset = th.ones((self.n_images, self.n_channels, self.final_nrows, self.final_ncols), dtype=th.float32)
         
         paths_list = list(files_to_days_and_points_dict.keys())
         
