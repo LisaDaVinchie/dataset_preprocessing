@@ -51,7 +51,7 @@ NEXT_MINMAX_PATH := $(MINMAX_DIR)/$(MINMAX_BASENAME)_$(NEXT_IDX)$(MINMAX_FILE_EX
 PATHS_FILE := $(SRC_DIR)/paths.json
 PARAMS_FILE := $(SRC_DIR)/params.json
 
-.PHONY: config download convert cut cut5 test help minmax mask
+.PHONY: config download convert cut test help minmax mask
 
 config:
 	@echo "Storing paths to json..."
@@ -97,19 +97,7 @@ mask: config
 	$(PYTHON) $(SRC_DIR)/generate_nan_masks.py --paths $(PATHS_FILE) --params $(PARAMS_FILE)
 
 cut: config
-	$(PYTHON) $(SRC_DIR)/generate_dataset.py --paths $(PATHS_FILE) --params $(PARAMS_FILE)
-
-cut4: config
-	$(PYTHON) $(SRC_DIR)/generate_dataset_SST4.py --paths $(PATHS_FILE) --params $(PARAMS_FILE)
-
-cut5: config
-	$(PYTHON) $(SRC_DIR)/generate_dataset_SST5.py --paths $(PATHS_FILE) --params $(PARAMS_FILE)
-
-cut6: config
-	$(PYTHON) $(SRC_DIR)/generate_dataset_SST6.py --paths $(PATHS_FILE) --params $(PARAMS_FILE)
-
-cut7: config
-	$(PYTHON) $(SRC_DIR)/generate_dataset_SST7.py --paths $(PATHS_FILE) --params $(PARAMS_FILE)
+	$(PYTHON) $(SRC_DIR)/generate_dataset_SST.py --paths $(PATHS_FILE) --params $(PARAMS_FILE)
 
 test:
 	@echo "Running tests in $(TEST_DIR)"
