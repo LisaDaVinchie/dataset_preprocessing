@@ -24,56 +24,29 @@ def main():
     dataset_params = params["dataset"][dataset_name]
     longitude_range = list(dataset_params["longitude_range"])
     latitude_range = list(dataset_params["latitude_range"])
-    depth_range = list(dataset_params["depth_range"])
     dataset_id = str(dataset_params["dataset_id"])
-    
-    if dataset_name == "biochemistry":
-        subfolders = list(dataset_params["subfolders"])
-        dataset_base_id = str(dataset_params["dataset_id"])
-        channels = {}
-        dataset_id = {}
-        for subfolder in subfolders:
-            channels[subfolder] = list(dataset_params[subfolder]["channels"])
-            dataset_id[subfolder] = dataset_base_id.replace("name", subfolder)
-    else:
-        channels = list(dataset_params["channels_to_keep"])
+    channels = list(dataset_params["channels_to_keep"])
 
     login_copernicus()
     print("\nLogin completed\n")
 
     dwl = CopernicusMarineDownloader(
         longitude_range=longitude_range,
-        latitude_range=latitude_range,
-        depth_range=depth_range
+        latitude_range=latitude_range
     )
     print("\nCopernicus Marine Downloader initialized\n")
-    if dataset_name == "biochemistry":
-        for year in range(year_range[0], year_range[1] + 1):
-            for month in range(month_range[0], month_range[1] + 1):
-                print(f"\nDownloading data for {year}-{month}...\n")
-                for subfolder in subfolders:
-                    print(f"\nDownloading {subfolder}\n")
-                    dwl.download(
-                        output_filename=f"{year}_{str(month).zfill(2)}.nc",
-                        dataset_id=dataset_id[subfolder],
-                        output_directory=raw_data_dir,
-                        variables=channels[subfolder],
-                        datetime_range=datetime_range[(year, month)]
-                    )
-                    print(f"\nDownload completed for {year}-{month} in {time.time() - start_time} seconds\n")
-    else:
-        # Download the data
-        for year in range(year_range[0], year_range[1] + 1):
-            for month in range(month_range[0], month_range[1] + 1):
-                print(f"\nDownloading data for {year}-{month}...\n")
-                dwl.download(
-                    output_filename=f"{year}_{str(month).zfill(2)}.nc",
-                    dataset_id=dataset_id,
-                    output_directory=raw_data_dir,
-                    variables=channels,
-                    datetime_range=datetime_range[(year, month)]
-                )
-                print(f"\nDownload completed for {year}-{month} in {time.time() - start_time} seconds\n")
+    # Download the data
+    for year in range(year_range[0], year_range[1] + 1):
+        for month in range(month_range[0], month_range[1] + 1):
+            print(f"\nDownloading data for {year}-{month}...\n")
+            dwl.download(
+                output_filename=f"{year}_{str(month).zfill(2)}.nc",
+                dataset_id=dataset_id,
+                output_directory=raw_data_dir,
+                variables=channels,
+                datetime_range=datetime_range[(year, month)]
+            )
+            print(f"\nDownload completed for {year}-{month} in {time.time() - start_time} seconds\n")
 
     print(f"\nDownload completed in {time.time() - start_time} seconds\n")
 
