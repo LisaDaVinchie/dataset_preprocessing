@@ -1,28 +1,47 @@
 {
     "dataset":{ 
-        "cutted_nrows": 168,
-        "cutted_ncols": 144,
-        "n_cutted_images": 5000,
+        "cutted_nrows": 144,
+        "cutted_ncols": 168,
+        "n_cutted_images": 200,
         "nans_threshold": 0.3,
-        "total_days": 1,
+        "total_days": 9,
         "nan_placeholder": -300.0,
         "mask_kind": "square",
         "_possible_mask_kinds": ["square", "lines"],
         "same_mask": false,
-        "dataset_kind": "temperature",
-        "_possible_dataset_kinds": ["temperature"],
+        "dataset_kind": "microwave",
+        "_possible_dataset_kinds": ["combined", "infrared", "microwave"],
         "year_range": [2021, 2021],
         "month_range": [1, 12],
-        "temperature":{
+        "combined":{
             "n_rows": 1600,
             "n_cols": 3600,
-            "masked_channels": [0, 1],
-            "channels_to_keep": ["sea_surface_temperature", "sea_surface_temperature_stddev", "or_latitude", "or_longitude"],
+            "masked_channels": [0],
+            "channels_to_keep": ["sea_surface_temperature", "or_latitude", "or_longitude", "quality_level"],
             "channels": ["adjusted_sea_surface_temperature", "bias_to_reference_sst", "or_latitude", "or_longitude", "or_number_of_pixels", "quality_level", "satellite_zenith_angle", "sea_surface_temperature", "sea_surface_temperature_stddev", "solar_zenith_angle", "sses_bias", "sses_standard_deviation", "sst_dtime"],
             "dataset_id": "IFREMER-GLOB-SST-L3-NRT-OBS_FULL_TIME_SERIE",
             "longitude_range": [-179.97500610351562, 179.97500610351562],
-            "latitude_range": [-79.9749984741211, 79.9749984741211],
-            "depth_range": [0.4940253794193268, 0.4940253794193268]
+            "latitude_range": [-79.9749984741211, 79.9749984741211]
+        },
+        "infrared": {
+            "n_rows": 1600,
+            "n_cols": 3600,
+            "masked_channels": [0],
+            "channels_to_keep": ["sea_surface_temperature", "or_latitude", "or_longitude", "quality_level"],
+            "channels": ["adjusted_sea_surface_temperature", "bias_to_reference_sst", "or_latitude", "or_longitude", "or_number_of_pixels", "quality_level", "satellite_zenith_angle", "sea_surface_temperature", "sea_surface_temperature_stddev", "solar_zenith_angle", "sources_of_sst", "sses_bias", "sses_standard_deviation", "sst_dtime"],
+            "dataset_id": "cmems_obs-sst_glo_phy_l3s_pir_P1D-m",
+            "longitude_range": [-179.97500610351562, 179.97500610351562],
+            "latitude_range": [-79.9749984741211, 79.9749984741211]
+        },
+        "microwave": {
+            "n_rows": 1600,
+            "n_cols": 3600,
+            "masked_channels": [0],
+            "channels_to_keep": ["sea_surface_temperature", "or_latitude", "or_longitude", "quality_level"],
+            "channels": ["adjusted_sea_surface_temperature", "bias_to_reference_sst", "or_latitude", "or_longitude", "or_number_of_pixels", "quality_level", "satellite_zenith_angle", "sea_surface_temperature", "sea_surface_temperature_stddev", "solar_zenith_angle", "sources_of_sst", "sses_bias", "sses_standard_deviation", "sst_dtime"],
+            "dataset_id": "cmems_obs-sst_glo_phy_l3s_pmw_P1D-m",
+            "longitude_range": [-179.97500610351562, 179.97500610351562],
+            "latitude_range": [-79.9749984741211, 79.9749984741211]
         }
     },
     "masks": {
