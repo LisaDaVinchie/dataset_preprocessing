@@ -11,7 +11,7 @@
         "same_mask": false,
         "dataset_kind": "microwave",
         "_possible_dataset_kinds": ["combined", "infrared", "microwave"],
-        "year_range": [2021, 2021],
+        "year_range": [2021, 2024],
         "month_range": [1, 12],
         "combined":{
             "n_rows": 1600,
