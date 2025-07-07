@@ -1,6 +1,7 @@
 ########################################################################
 #
 #   Generate dataset normalized between -1 and 1
+#   Fixed starting point for the cutted images
 #   2 time layers (sin and cos)
 #
 #########################################################################
