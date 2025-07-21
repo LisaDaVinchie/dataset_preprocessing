@@ -97,7 +97,6 @@ pexpect==4.9.0
 pillow==11.3.0
 platformdirs==4.3.8
 pockets==0.9.1
-podaac-data-subscriber==1.15.2
 progressbar2==4.2.0
 prometheus_client==0.22.1
 prompt_toolkit==3.0.51
