@@ -75,9 +75,10 @@ class SquareMask:
         self.image_nrows = image_nrows
         self.image_ncols = image_ncols
         self.mask_percentage = mask_percentage
-        
-        self._initialize_parameters(params)
-        
+
+        if params is not None:
+            self._initialize_parameters(params)
+
         self._check_parameters()
         
         n_pixels = int(self.mask_percentage * self.image_nrows * self.image_ncols)
