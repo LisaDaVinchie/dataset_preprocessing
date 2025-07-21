@@ -6,7 +6,7 @@
 #SBATCH --ntasks=1
 #SBATCH --mem=4G
 
-source ../venv_dataset/bin/activate
+source ../venv_modis/bin/activate
 
 PARAMS_FILE="./src/params.json"
 
@@ -35,3 +35,5 @@ DESTINATION_DIR="./data/modis/raw/"
 podaac-data-downloader -c MODIS_TERRA_L3_SST_THERMAL_DAILY_4KM_NIGHTTIME_V2019.0 -d $DESTINATION_DIR --start-date $START_DATE --end-date $END_DATE -e ""
 
 rm -rf $DESTINATION_DIR/*.NRT.nc
+
+source deactivate
