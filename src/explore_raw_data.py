@@ -6,30 +6,31 @@ from pathlib import Path
 
 # data_path = Path('data/IFREMER-GLOB-SST-L3-NRT-OBS_FULL_TIME_SERIE_202211/')
 # data_path = Path('data/cmems_mod_glo_bgc-pft_anfc_0.25deg_P1D-m/')
-data_path = Path('data/raw/biochemistry/pft/')
+# data_path = Path('data/raw/biochemistry/pft/')
 # data_path = Path('data/GLOBAL_ANALYSISFORECAST_PHY_001_024/')
 # data_path = Path('data/DIVAnd/')
 # data_path = Path('data/EMODNET/')
 # data_path = Path('data/ocldb1743602850/')
 # data_path = Path('data/MULTIOBS_GLO_BIO_CARBON_SURFACE_MYNRT_015_008/')
 # data_path = Path('data/raw/ensemble_physics/my/')
+# data_path = Path('data/TERRA_MODIS.20000225.L3m.DAY.NSST.sst.4km.nc')
 
-figs_folder = Path("figs/")
+# figs_folder = Path("figs/")
 
-if not figs_folder.exists():
-    raise FileNotFoundError(f"Directory {figs_folder} does not exist.")
+# if not figs_folder.exists():
+#     raise FileNotFoundError(f"Directory {figs_folder} does not exist.")
 
-# Check if the file exists
-if not data_path.exists():
-    print(f'Folder {data_path} does not exist')
-    exit()
+# # Check if the file exists
+# if not data_path.exists():
+#     print(f'Folder {data_path} does not exist')
+#     exit()
 
 # Load the data
-raw_data_paths = list(data_path.glob("*.nc"))
-raw_data_path = raw_data_paths[0]
+# raw_data_paths = list(data_path.glob("*.nc"))
+# raw_data_path = raw_data_paths[0]
 # raw_data_path = data_path / "Water_body_phosphate_subset.nc"
 # raw_data_path = Path("data/raw/biochemistry/co2/2023_02.nc")
-raw_data_path = Path("data/raw/temperature/2023_02.nc")
+raw_data_path = Path('data/TERRA_MODIS.20000225.L3m.DAY.NSST.sst.4km.nc')
 # raw_data_path = Path("data/raw/ensemble_physics/2023_01.nc")
 
 if not raw_data_path.exists():
@@ -52,12 +53,12 @@ for key in keys:
     print()
     
 
-selected_key = "quality_level"
+selected_key = "sst"
 
-# images = data[selected_key].values[0, :, :]
-# plt.imshow(images)
-# plt.colorbar()
-# plt.show()
+images = data[selected_key].values
+plt.imshow(images)
+plt.colorbar()
+plt.show()
 
 # for c in range(images.shape[0]):
 #     plt.imshow(images[c, :, :])
