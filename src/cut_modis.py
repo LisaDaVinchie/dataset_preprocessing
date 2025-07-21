@@ -8,12 +8,13 @@ import math
 from datetime import datetime, timedelta
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from tqdm import tqdm
 
 from utils.mask_data import SquareMask
 
 def main():
     start_time = time.time()
-    N = 84 # Number of images to create
+    N = 80 # Number of images to create
     n_days = 9
     surrounding_days = n_days // 2
     nrows = 168
@@ -85,26 +86,46 @@ def main():
     # The number of channels is len(keys) + 4 to account for additional metadata
     # - Sin and cos of time
     # - Latitude and longitude
-    images = th.ones(shape, dtype=th.float32)
     
+    p = ProcessFiles(
+        files_dir=files_dir,
+        n_days=n_days,
+        startrow=startrow,
+        endrow=endrow,
+        startcol=startcol,
+        endcol=endcol,
+        key=key)
+    
+    batch_size = 8
+    
+    batch_dict = []
+    keys = list(selected_dates.keys())
+    
+    for i in range(0, len(keys), batch_size):
+        # print("Processing keys from", keys[i], "to", keys[min(i + batch_size, len(keys)) - 1], flush=True)
+        batch = {keys[j]: selected_dates[keys[j]] for j in range(i, min(i + batch_size, len(keys)))}
+        batch_dict.append(batch)
+
+    images = th.ones(shape, dtype=th.float32) * 2
     
     with ProcessPoolExecutor() as executor:
-        futures = []
-        for date_str in selected_dates:
-            futures.append(executor.submit(
-                process_date,
-                files_dir / f"TERRA_MODIS.{date_str}.L3m.DAY.NSST.sst.4km.nc",
-                selected_dates[date_str],
-                startrow, endrow, startcol, endcol, n_days, key=key
-            ))
+        futures = [
+            executor.submit(p.process_batch, batch_dict[i])
+            for i in range(len(batch_dict))
+        ]
 
-        for future in as_completed(futures):
+        # print(f"Processing {len(futures)} futures in parallel...", flush=True)
+        for future in tqdm(as_completed(futures), total=len(futures)):
             results = future.result()
+            # print(f"Processing {len(results)} results from the future.", flush=True)
             for dataset_idx, channel_idx, arr in results:
-                if channel_idx in [-4, -3] and np.isscalar(arr):
+                # print(f"Updating {dataset_idx}, {channel_idx} with array of mean {np.nanmean(arr)} and std {np.nanstd(arr)}", flush=True)
+                if channel_idx in [n_days, n_days + 1] and np.isscalar(arr):
                     images[dataset_idx, channel_idx, :, :] *= arr
                 else:
                     images[dataset_idx, channel_idx, :, :] = th.tensor(arr, dtype=th.float32)
+                # print(f"Updated {dataset_idx}, {channel_idx} with array of mean {np.nanmean(images[dataset_idx, channel_idx, :, :])} and std {np.nanstd(images[dataset_idx, channel_idx, :, :])}", flush=True)
+
         
     # for date_str in list(selected_dates.keys()):
     #     print(f"Processing date: {date_str}", flush=True)
@@ -152,25 +173,42 @@ def main():
     th.save(dataset, output_dir)
     print(f"Dataset saved successfully in {time.time() - start_time} seconds.", flush=True)
 
-def process_date(path, selected_tuples, startrow, endrow, startcol, endcol, n_days, key = "sst"):
-    if not path.exists():
-        raise FileNotFoundError(f"File {path} does not exist.")
-    date_str = path.stem.split(".")[1]
-    data = xr.open_dataset(path, engine="h5netcdf")
-    results = []
-    for (dataset_idx, channel_idx) in selected_tuples:
-        if channel_idx == n_days // 2:
-            cos_time, sin_time = get_encoded_time(date_str, date_format="%Y%m%d")
-            # Return time encodings for later
-            results.append((dataset_idx, -4, cos_time))
-            results.append((dataset_idx, -3, sin_time))
-            
-        arr = data[key].values[startrow:endrow, startcol:endcol]
-        results.append((dataset_idx, channel_idx, arr))
+class ProcessFiles:
+    def __init__(self, files_dir: Path, n_days: int, startrow: int, endrow: int, startcol: int, endcol: int, key: str = "sst"):
+        self.files_dir = files_dir
+        self.n_days = n_days
+        self.startrow = startrow
+        self.endrow = endrow
+        self.startcol = startcol
+        self.endcol = endcol
+        self.key = key
 
-    data.close()
-    print(f"Processed date: {date_str}", flush=True)
-    return results
+    def process_batch(self, dates_dict: dict):
+        
+            
+        results = []
+        for date_str in list(dates_dict.keys()):
+            
+            path = self.files_dir / f"TERRA_MODIS.{date_str}.L3m.DAY.NSST.sst.4km.nc"
+            if not path.exists():
+                raise FileNotFoundError(f"File {path} does not exist.")
+            data = xr.open_dataset(path, engine="h5netcdf")
+            for (dataset_idx, channel_idx) in dates_dict[date_str]:
+                # print(f"Processing date: {date_str}, dataset_idx: {dataset_idx}, channel_idx: {channel_idx}", flush=True)
+                if channel_idx == self.n_days // 2:
+                    cos_time, sin_time = get_encoded_time(date_str, date_format="%Y%m%d")
+                    # Return time encodings for later
+                    results.append((dataset_idx, self.n_days, cos_time))
+                    results.append((dataset_idx, self.n_days + 1, sin_time))
+                    
+                arr = data[self.key].values[self.startrow:self.endrow, self.startcol:self.endcol]
+
+                results.append((dataset_idx, channel_idx, arr))
+
+            data.close()
+            # print(f"Processed date: {date_str}\n", flush=True)
+        
+        return results
     
 def get_encoded_time(day_str: str, date_format = "%Y_%m_%d") -> float:
     date = datetime.strptime(day_str, date_format)
