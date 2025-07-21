@@ -1,0 +1,37 @@
+#!/bin/bash
+#SBATCH --job-name=podaac_download
+#SBATCH --output=podaac_download_%j.out
+#SBATCH --error=podaac_download_%j.err
+#SBATCH --time=01:00:00
+#SBATCH --ntasks=1
+#SBATCH --mem=4G
+
+source ../venv_dataset/bin/activate
+
+PARAMS_FILE="./src/params.json"
+
+echo "Using .netrc at $HOME/.netrc"
+ls -la $HOME/.netrc
+
+START_YEAR=$(jq -r '.dataset.year_range[0]' $PARAMS_FILE)
+END_YEAR=$(jq -r '.dataset.year_range[1]' $PARAMS_FILE)
+START_MONTH=$(jq -r '.dataset.month_range[0]' $PARAMS_FILE)
+END_MONTH=$(jq -r '.dataset.month_range[1]' $PARAMS_FILE)
+
+START_DATE=$(printf "%04d-%02d-01T00:00:00Z" $START_YEAR $START_MONTH)
+if [ "$END_MONTH" -eq 12 ]; then
+    END_DATE=$(printf "%04d-01-01T00:00:00Z" $(($END_YEAR + 1)))
+else
+    END_DATE=$(printf "%04d-%02d-01T00:00:00Z" $END_YEAR $(($END_MONTH + 1)))
+fi
+
+echo "Start Date: $START_DATE"
+echo "End Date:   $END_DATE"
+
+
+DESTINATION_DIR="./data/modis/raw/"
+
+
+podaac-data-downloader -c MODIS_TERRA_L3_SST_THERMAL_DAILY_4KM_NIGHTTIME_V2019.0 -d $DESTINATION_DIR --start-date $START_DATE --end-date $END_DATE -e ""
+
+rm -rf $DESTINATION_DIR/*.NRT.nc
