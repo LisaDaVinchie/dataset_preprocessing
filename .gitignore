@@ -19,7 +19,7 @@ upload_dataset.sh
 bot_codes.txt
 
 # The virtual environment
-venv_dataset/
+*venv*/
 
 # Local system files
 **/.DS_Store
