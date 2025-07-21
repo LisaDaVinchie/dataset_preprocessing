@@ -9,10 +9,10 @@
         "mask_kind": "square",
         "_possible_mask_kinds": ["square", "lines"],
         "same_mask": false,
-        "dataset_kind": "microwave",
-        "_possible_dataset_kinds": ["combined", "infrared", "microwave"],
-        "year_range": [2021, 2024],
-        "month_range": [1, 12],
+        "dataset_kind": "infrared",
+        "_possible_dataset_kinds": ["combined", "infrared", "microwave", "modis"],
+        "year_range": [2020, 2020],
+        "month_range": [2, 3],
         "combined":{
             "n_rows": 1600,
             "n_cols": 3600,
@@ -42,6 +42,14 @@
             "dataset_id": "cmems_obs-sst_glo_phy_l3s_pmw_P1D-m",
             "longitude_range": [-179.97500610351562, 179.97500610351562],
             "latitude_range": [-79.9749984741211, 79.9749984741211]
+        },
+        "modis": {
+            "n_rows": 4320,
+            "n_cols": 8640,
+            "masked_channels": [0],
+            "channels_to_keep": ["sst", "qual_sst"],
+            "channels": ["sst", "qual_sst", "palette"],
+            "dataset_id": "cmems_obs-sst_glo_phy_l3s_pmw_P1D-m"
         }
     },
     "masks": {
