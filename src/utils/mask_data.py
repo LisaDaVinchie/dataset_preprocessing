@@ -1,6 +1,8 @@
 import torch as th
+import torch.nn.functional as F
 import random
 import math
+from typing import Tuple
 
 mask_name = "masks"
 square_mask_name = "square"
@@ -252,3 +254,135 @@ class LinesMask:
                             line_mask[yi, xi] = True
                             
         return line_mask
+    
+class CloudMask:
+    def __init__(self, params: dict = None, image_size: Tuple[int, int] = None):
+        """Initialize the CloudMask class.
+
+        Args:
+            params (dict, optional): Parameters for cloud generation. Defaults to None.
+            image_size (Tuple[int, int], optional): (height, width) of the image to mask. Defaults to None.
+        """
+        self.image_size = image_size
+        self.coverage_range = (0.3, 0.9)
+        self.default_params = {
+            'base_threshold': 0.4,
+            'res': 8,
+            'octaves': 6,
+            'persistence': 0.5
+        }
+        
+        if params is not None:
+            self.default_params.update(params)
+
+    def mask(self, **kwargs) -> th.Tensor:
+        """
+        Create realistic boolean cloud mask resembling satellite imagery
+        
+        Args:
+            base_threshold: base cutoff for cloud formation (0-1)
+            res: base resolution parameter
+            octaves: number of noise layers
+            persistence: amplitude reduction per octave
+            
+        Returns:
+            th.Tensor: Boolean mask where True indicates cloud coverage
+        """
+        params = self.default_params.copy()
+        params.update(kwargs)
+        
+        # Generate continuous cloud probability mask
+        cloud_prob = self._generate_cloud_probability_mask(self.image_size, **params)
+        
+        # Convert to boolean mask
+        coverage = random.uniform(*self.coverage_range)
+        bool_mask = self._threshold_to_coverage(cloud_prob, coverage)
+        
+        return ~bool_mask
+
+    def _generate_cloud_probability_mask(self, shape: Tuple[int, int], 
+                                      base_threshold: float,
+                                      res: int,
+                                      octaves: int,
+                                      persistence: float) -> th.Tensor:
+        """Generate continuous cloud probability mask"""
+        # Generate fractal noise
+        noise = self._generate_fractal_noise(shape, res, octaves, persistence)
+        
+        # Apply base threshold with variability
+        threshold = base_threshold + 0.1 * th.randn(1).item()
+        mask = th.sigmoid((noise - threshold) * 10)  # Soft threshold
+        
+        # Apply smoothing
+        mask = self._smooth_mask(mask)
+        
+        # Add texture variability
+        texture = self._generate_fractal_noise(shape, res*2, octaves-2, persistence*1.2)
+        mask = th.clamp(mask * (0.8 + 0.4 * texture), 0, 1)
+        
+        # Add atmospheric effects
+        mask = self._add_atmospheric_effects(mask)
+        
+        return mask
+
+    def _generate_fractal_noise(self, shape: Tuple[int, int], 
+                              res: int, 
+                              octaves: int, 
+                              persistence: float) -> th.Tensor:
+        """Generate fractal noise for natural cloud patterns"""
+        noise = th.zeros(shape)
+        frequency = 1
+        amplitude = 1
+        
+        for _ in range(octaves):
+            # Generate scaled random noise
+            h, w = shape
+            scaled_shape = (max(1, int(h/res/frequency)), max(1, int(w/res/frequency)))
+            rand_noise = th.randn(scaled_shape)
+            
+            # Upscale with bilinear interpolation
+            upscaled = F.interpolate(rand_noise.unsqueeze(0).unsqueeze(0), 
+                                    size=shape, mode='bilinear', align_corners=False).squeeze()
+            
+            noise += upscaled * amplitude
+            frequency *= 2
+            amplitude *= persistence
+        
+        # Normalize to 0-1 range
+        noise = (noise - noise.min()) / (noise.max() - noise.min())
+        return noise
+
+    def _threshold_to_coverage(self, prob_mask: th.Tensor, 
+                             target_coverage: float) -> th.Tensor:
+        """Convert probability mask to boolean mask with exact coverage"""
+        sorted_values = th.sort(prob_mask.flatten())[0]
+        target_pixels = int(target_coverage * prob_mask.numel())
+        threshold = sorted_values[-target_pixels]
+        return prob_mask >= threshold
+
+    def _smooth_mask(self, mask: th.Tensor, kernel_size: int = 7) -> th.Tensor:
+        """Apply Gaussian smoothing to mask"""
+        kernel = self._get_gaussian_kernel(kernel_size)
+        return F.conv2d(mask.unsqueeze(0).unsqueeze(0), 
+                       kernel, 
+                       padding=kernel_size//2).squeeze()
+
+    def _get_gaussian_kernel(self, size: int, sigma: float = 1.0) -> th.Tensor:
+        """Create Gaussian kernel for smoothing"""
+        coords = th.arange(size).float() - size//2
+        g = th.exp(-(coords**2) / (2 * sigma**2))
+        g = g.ger(g)  # Outer product
+        return (g / g.sum()).view(1, 1, size, size)
+
+    def _add_atmospheric_effects(self, mask: th.Tensor) -> th.Tensor:
+        """Add subtle atmospheric effects for realism"""
+        # Edge detection
+        edges = F.avg_pool2d(mask.unsqueeze(0).unsqueeze(0), 5, stride=1, padding=2) - \
+                F.avg_pool2d(1 - mask.unsqueeze(0).unsqueeze(0), 5, stride=1, padding=2)
+        edges = edges.squeeze()
+        
+        # Apply edge effects
+        edge_region = (edges > -0.2) & (edges < 0.2)
+        mask[edge_region] = th.clamp(mask[edge_region] + 0.2 * th.randn_like(mask[edge_region]), 0, 1)
+        
+        return mask
