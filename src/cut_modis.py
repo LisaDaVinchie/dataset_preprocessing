@@ -185,7 +185,6 @@ class ProcessFiles:
 
     def process_batch(self, dates_dict: dict):
         
-            
         results = []
         for date_str in list(dates_dict.keys()):
             
@@ -195,13 +194,14 @@ class ProcessFiles:
             data = xr.open_dataset(path, engine="h5netcdf")
             for (dataset_idx, channel_idx) in dates_dict[date_str]:
                 # print(f"Processing date: {date_str}, dataset_idx: {dataset_idx}, channel_idx: {channel_idx}", flush=True)
+                
+                arr = data[self.key].values[self.startrow:self.endrow, self.startcol:self.endcol]
+                
                 if channel_idx == self.n_days // 2:
                     cos_time, sin_time = get_encoded_time(date_str, date_format="%Y%m%d")
                     # Return time encodings for later
                     results.append((dataset_idx, self.n_days, cos_time))
                     results.append((dataset_idx, self.n_days + 1, sin_time))
-                    
-                arr = data[self.key].values[self.startrow:self.endrow, self.startcol:self.endcol]
 
                 results.append((dataset_idx, channel_idx, arr))
 
