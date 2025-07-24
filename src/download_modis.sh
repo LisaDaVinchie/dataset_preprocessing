@@ -1,5 +1,7 @@
 PARAMS_FILE="./src/params.json"
 
+source ./venv_modis/bin/activate
+
 START_YEAR=$(jq -r '.dataset.year_range[0]' $PARAMS_FILE)
 END_YEAR=$(jq -r '.dataset.year_range[1]' $PARAMS_FILE)
 START_MONTH=$(jq -r '.dataset.month_range[0]' $PARAMS_FILE)
@@ -20,5 +22,6 @@ DESTINATION_DIR="./data/modis/raw/"
 
 
 podaac-data-downloader -c MODIS_TERRA_L3_SST_THERMAL_DAILY_4KM_NIGHTTIME_V2019.0 -d $DESTINATION_DIR --start-date $START_DATE --end-date $END_DATE -e ""
+deactivate
 
 rm -rf $DESTINATION_DIR/*.NRT.nc
