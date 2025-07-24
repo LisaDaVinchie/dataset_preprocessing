@@ -2,10 +2,10 @@
 #SBATCH --job-name=gen_data
 #SBATCH --output=logs/%j.out
 #SBATCH --error=logs/%j.err
-#SBATCH --time=03:00:00
+#SBATCH --time=01:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=1
+#SBATCH --cpus-per-task=4
 
 source bot_codes.txt
 bot_id=${bot_id}
@@ -28,7 +28,9 @@ fi
 
 ulimit -a
 
-make cut || { echo "Cutting failed"; exit 1; }
+PYTHON=$(which python3) || { echo "Could not find python3"; exit 1; }
+
+$PYTHON src/cut_modis1.py || { echo "MODIS processing failed"; exit 1; }
 
 notify_telegram "SUCCESS"
 

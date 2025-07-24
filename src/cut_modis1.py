@@ -13,8 +13,8 @@ from utils.mask_data import SquareMask, CloudMask
 
 def main():
     start_time = time.time()
-    N_train = 80
-    N_test = 20
+    N_train = 500
+    N_test = 100
     N = N_train + N_test
     n_days = 9
     surrounding_days = n_days // 2
