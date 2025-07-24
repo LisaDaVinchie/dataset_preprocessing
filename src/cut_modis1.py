@@ -126,8 +126,8 @@ def main():
     images[:, -1, :, :] = norm_lons.repeat(nrows).reshape(ncols, nrows).T
     
     print(f"Processing {len(batch_dict)} batches of size {batch_size}...", flush=True)
-    
-    with ProcessPoolExecutor() as executor:
+
+    with ProcessPoolExecutor(max_workers = 4) as executor:
         futures = [
             executor.submit(p.process_batch, batch_dict[i])
             for i in range(len(batch_dict))
