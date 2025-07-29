@@ -41,7 +41,7 @@ def main():
     if not files_dir.exists():
         raise FileNotFoundError(f"Directory {files_dir} does not exist.")
 
-    file_list = sorted(list(files_dir.glob("TERRA_MODIS.2010[0-9][0-9][0-9][0-9].L3m.DAY.NSST.sst.4km.nc")))
+    file_list = sorted(list(files_dir.glob("TERRA_MODIS.[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9].L3m.DAY.NSST.sst.4km.nc")))
 
     if not file_list:
         raise FileNotFoundError(f"No files found in {files_dir} matching the pattern.")
