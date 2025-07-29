@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=gen_data
+#SBATCH --job-name=gen_data_test
 #SBATCH --output=logs/%j.out
 #SBATCH --error=logs/%j.err
 #SBATCH --time=01:00:00
