@@ -59,6 +59,7 @@ sst_list = []
 for zip_path in zip_files:
     print(f"Processing {zip_path.name} ...")
     sst_list.extend(extract_sst_from_zip(zip_path))
+    print(f"{zip_path.name} processed")
 
 print(f"Files processed in {time.time() - start_time:.2f} seconds\n")
 
