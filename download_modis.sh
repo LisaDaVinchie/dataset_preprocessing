@@ -24,6 +24,13 @@ trap 'notify_telegram "FAILED (job terminated or timed out)"' TERM EXIT
 
 source ./venv_download/bin/activate || { echo "Failed to activate virtual environment"; exit 1; }
 
+cp /u/username/.netrc $HOME/
+chmod 600 $HOME/.netrc
+echo "---- .netrc ----"
+cat ~/.netrc | sed 's/password .*/password ****/g'
+echo "--------------"
+
+
 START_YEAR=2021
 END_YEAR=2021
 START_MONTH=1
@@ -43,7 +50,7 @@ echo "End Date:   $END_DATE"
 DESTINATION_DIR="./data/modis/raw/"
 
 
-podaac-data-downloader -c MODIS_TERRA_L3_SST_THERMAL_DAILY_4KM_NIGHTTIME_V2019.0 -d $DESTINATION_DIR --start-date $START_DATE --end-date $END_DATE -e ""
+podaac-data-downloader -c MODIS_TERRA_L3_SST_THERMAL_DAILY_4KM_NIGHTTIME_V2019.0 -d $DESTINATION_DIR --start-date $START_DATE --end-date $END_DATE -e ".nc"
 deactivate
 
 rm -rf $DESTINATION_DIR/*.NRT.nc
