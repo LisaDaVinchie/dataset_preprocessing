@@ -6,30 +6,34 @@ from pathlib import Path
 from datetime import datetime
 import time
 start_time = time.time()
+print("Program started", flush=True)
 
 
-LON_RANGE = (-7, 37)
-LAT_RANGE = (30, 46)
+# LON_RANGE = (-7, 37)
+# LAT_RANGE = (30, 46)
 # Area of interest
 lat_inds = np.arange(1056, 1439 + 1)
 lon_inds = np.arange(4152, 5207 + 1)
 
-print(f"Lat indices: {len(lat_inds)}, lon indices: {len(lon_inds)}")
+print(f"Lat indices: {len(lat_inds)}, lon indices: {len(lon_inds)}", flush=True)
 
 # Paths
 DATA_DIR = Path("./data/modis/raw/")
 OUTPUT_DIR = Path("./data/modis/processed/")
 OUTPUT_DIR.mkdir(exist_ok=True)
+print("Output directory created:", OUTPUT_DIR, flush=True)
 
 i = 1
 OUTPUT_FILE = Path(f"./data/modis/processed/dataset_{i}.nc")
 while OUTPUT_FILE.exists():
     i += 1
     OUTPUT_FILE = Path(f"./data/modis/processed/dataset_{i}.nc")
+    
+print(f"Output file will be saved as: {OUTPUT_FILE}", flush=True)
 
 
 zip_files = sorted(DATA_DIR.glob("[0-9][0-9][0-9][0-9].zip"))
-print(f"Found {len(zip_files)} zip files in {DATA_DIR}")
+print(f"Found {len(zip_files)} zip files in {DATA_DIR}", flush=True)
 
 def extract_sst_from_zip(zip_path: Path):
     daily_slices = []
@@ -57,17 +61,18 @@ def extract_sst_from_zip(zip_path: Path):
 # Process each zip
 sst_list = []
 for zip_path in zip_files:
-    print(f"Processing {zip_path.name} ...")
+    print(f"Processing {zip_path.name} ...", flush=True)
     sst_list.extend(extract_sst_from_zip(zip_path))
-    print(f"{zip_path.name} processed")
+    print(f"{zip_path.name} processed", flush=True)
 
-print(f"Files processed in {time.time() - start_time:.2f} seconds\n")
+print(f"Files processed in {time.time() - start_time:.2f} seconds\n", flush=True)
 
 t2 = time.time()
 # Combine all slices
+print("Combining files ...", flush=True)
 combined = xr.concat(sst_list, dim="time")
 
-print(f"Files concatenated in {time.time() - t2:.2f} seconds\n")
+print(f"Files concatenated in {time.time() - t2:.2f} seconds\n", flush=True)
 
 with zipfile.ZipFile(zip_files[0], 'r') as zf:
     for file in zf.namelist():
@@ -79,7 +84,7 @@ with zipfile.ZipFile(zip_files[0], 'r') as zf:
                     # lat_subset = ds.lat.sel(lat=slice(46, 30)).values
                     # lon_subset = ds.lon.sel(lon=slice(-7, 37)).values
             break  # just use the first file
-
+print("Coordinates extracted from the first file\n", flush=True)
 # After combining
 combined = combined.assign_coords(lat=("lat", lat_subset),
                                     lon=("lon", lon_subset))
