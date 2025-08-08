@@ -5,6 +5,7 @@ from io import BytesIO
 from pathlib import Path
 from datetime import datetime
 import time
+from filelock import FileLock
 start_time = time.time()
 print("Program started", flush=True)
 
@@ -28,12 +29,23 @@ OUTPUT_FILE = Path(f"./data/modis/processed/dataset_{i}.nc")
 while OUTPUT_FILE.exists():
     i += 1
     OUTPUT_FILE = Path(f"./data/modis/processed/dataset_{i}.nc")
+lock = FileLock(str(OUTPUT_FILE) + ".lock")
     
 print(f"Output file will be saved as: {OUTPUT_FILE}", flush=True)
 
 
 zip_files = sorted(DATA_DIR.glob("[0-9][0-9][0-9][0-9].zip"))
 print(f"Found {len(zip_files)} zip files in {DATA_DIR}", flush=True)
+
+with zipfile.ZipFile(zip_files[0], 'r') as zf:
+    for file in zf.namelist():
+        if file.endswith('.nc'):
+            with zf.open(file) as f:
+                with xr.open_dataset(BytesIO(f.read()), engine="h5netcdf") as ds:
+                    lat_subset = ds.lat.isel(lat=lat_inds).values
+                    lon_subset = ds.lon.isel(lon=lon_inds).values
+            break  # just use the first file
+print("Coordinates extracted from the first file\n", flush=True)
 
 def extract_sst_from_zip(zip_path: Path):
     daily_slices = []
@@ -56,44 +68,26 @@ def extract_sst_from_zip(zip_path: Path):
                         subset = subset.drop_vars(["lat", "lon"])
 
                         daily_slices.append(subset)
-    return daily_slices
+                        
+    slices = xr.concat(daily_slices, dim="time")
+    
+    with lock:
+        if OUTPUT_FILE.exists():
+            mode = "a"
+        else:
+            mode = "w"
+            slices = slices.assign_coords(lat=("lat", lat_subset),
+                                    lon=("lon", lon_subset))
 
-# Process each zip
-sst_list = []
+    slices.to_netcdf(OUTPUT_FILE, mode=mode, format="NETCDF4",
+                        unlimited_dims=["time"], engine="netcdf4")
+
+
 for zip_path in zip_files:
     print(f"Processing {zip_path.name} ...", flush=True)
-    sst_list.extend(extract_sst_from_zip(zip_path))
+    extract_sst_from_zip(zip_path)
     print(f"{zip_path.name} processed", flush=True)
 
 print(f"Files processed in {time.time() - start_time:.2f} seconds\n", flush=True)
 
-t2 = time.time()
-# Combine all slices
-print("Combining files ...", flush=True)
-combined = xr.concat(sst_list, dim="time")
-
-print(f"Files concatenated in {time.time() - t2:.2f} seconds\n", flush=True)
-
-with zipfile.ZipFile(zip_files[0], 'r') as zf:
-    for file in zf.namelist():
-        if file.endswith('.nc'):
-            with zf.open(file) as f:
-                with xr.open_dataset(BytesIO(f.read()), engine="h5netcdf") as ds:
-                    lat_subset = ds.lat.isel(lat=lat_inds).values
-                    lon_subset = ds.lon.isel(lon=lon_inds).values
-                    # lat_subset = ds.lat.sel(lat=slice(46, 30)).values
-                    # lon_subset = ds.lon.sel(lon=slice(-7, 37)).values
-            break  # just use the first file
-print("Coordinates extracted from the first file\n", flush=True)
-# After combining
-combined = combined.assign_coords(lat=("lat", lat_subset),
-                                    lon=("lon", lon_subset))
-
-# Reorder dimensions to (lon, lat, time)
-reordered = combined.transpose("lon", "lat", "time", ...)
-
 print("Indexes reordered\n")
-
-# Save to NetCDF
-combined.to_netcdf(OUTPUT_FILE, format="NETCDF4", engine="netcdf4")
-print(f"✅ Saved with shape {combined['sst'].shape} to {OUTPUT_FILE} in {time.time() - start_time:.2f} seconds\n")
