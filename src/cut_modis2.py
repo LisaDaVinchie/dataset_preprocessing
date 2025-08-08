@@ -49,6 +49,14 @@ with zipfile.ZipFile(zip_files[0], 'r') as zf:
             break  # just use the first file
 print("Coordinates extracted from the first file\n", flush=True)
 
+encoding = {
+    'time': {
+        'dtype': 'datetime64[ns]',  # or 'int64' for more precision
+        'units': 'days since 1970-01-01',  # Unix epoch (standard reference)
+        'calendar': 'gregorian'  # Standard calendar
+    }
+}
+
 def append_to_netcdf(output_file, new_ds):
     with netCDF4.Dataset(output_file, "a") as nc:
         time_var = nc.variables['time']
@@ -102,7 +110,7 @@ def extract_sst_from_zip(zip_path: Path):
             slices = slices.assign_coords(lat=("lat", lat_subset),
                                     lon=("lon", lon_subset))
             slices.to_netcdf(OUTPUT_FILE, mode="w", format="NETCDF4",
-                        unlimited_dims=["time"], engine="netcdf4")
+                        unlimited_dims=["time"], engine="netcdf4", encoding=encoding)
     print(f"{zip_path.name} processed\n", flush=True)
 
 
