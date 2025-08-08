@@ -4,6 +4,8 @@ import numpy as np
 from io import BytesIO
 from pathlib import Path
 from datetime import datetime
+from multiprocessing import Pool
+import os
 import time
 import netCDF4
 from filelock import FileLock
@@ -66,6 +68,7 @@ def append_to_netcdf(output_file, new_ds):
 
 
 def extract_sst_from_zip(zip_path: Path):
+    print(f"Processing {zip_path.name} ...\n", flush=True)
     daily_slices = []
     with zipfile.ZipFile(zip_path, 'r') as zf:
         for file in zf.namelist():
@@ -100,14 +103,18 @@ def extract_sst_from_zip(zip_path: Path):
                                     lon=("lon", lon_subset))
             slices.to_netcdf(OUTPUT_FILE, mode="w", format="NETCDF4",
                         unlimited_dims=["time"], engine="netcdf4")
-    print(f"Processed {zip_path.name} and saved to {OUTPUT_FILE}", flush=True)
+    print(f"{zip_path.name} processed\n", flush=True)
 
 
-for zip_path in zip_files:
-    print(f"Processing {zip_path.name} ...", flush=True)
-    extract_sst_from_zip(zip_path)
-    print(f"{zip_path.name} processed", flush=True)
+# for zip_path in zip_files:
+#     print(f"Processing {zip_path.name} ...\n", flush=True)
+#     extract_sst_from_zip(zip_path)
+#     print(f"{zip_path.name} processed\n", flush=True)
+
+# This line automatically detects the number of CPUs
+n_processes = int(os.environ.get('SLURM_CPUS_PER_TASK', os.cpu_count()))
+
+with Pool(processes=n_processes) as pool:
+    pool.map(extract_sst_from_zip, zip_files)
 
 print(f"Files processed in {time.time() - start_time:.2f} seconds\n", flush=True)
-
-print("Indexes reordered\n")
