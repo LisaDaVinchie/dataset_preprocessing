@@ -55,15 +55,15 @@ encoding = {
         'zlib': True
     },
     'qual_sst': {
-        'dtype': 'float32',        # Downcast from float32 if possible!
+        'dtype': 'float32',
         'zlib': True
     },
     'time': {
-        'dtype': 'int64',        # datetime64[ns] stored as int64
-        'zlib': False            # Time is small (57KB) - don't compress
+        'dtype': 'int64',
+        'zlib': False
     },
     'palette': {
-        'zlib': False            # Too small to benefit
+        'zlib': False
     }
 }
 
@@ -74,8 +74,14 @@ def append_to_netcdf(output_file, new_ds):
         
         new_len = new_ds.dims['time']
         
+        new_times = netCDF4.date2num(
+            new_ds['time'].values.astype('datetime64[s]').tolist(),  # Ensure datetime64 input
+            units=time_var.units,
+            calendar=time_var.calendar
+        )
+        
         # Append time values
-        time_var[current_len:current_len+new_len] = new_ds['time'].values
+        time_var[current_len:current_len+new_len] = new_times
         
         # Append each variable (adjust names as needed)
         for varname in ['sst', 'qual_sst', 'palette']:
