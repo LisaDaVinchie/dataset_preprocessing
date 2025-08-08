@@ -70,6 +70,7 @@ def extract_sst_from_zip(zip_path: Path):
                         daily_slices.append(subset)
                         
     slices = xr.concat(daily_slices, dim="time")
+    print(f"Extracted {len(daily_slices)} slices from {zip_path.name}", flush=True)
     
     with lock:
         if OUTPUT_FILE.exists():
@@ -81,6 +82,7 @@ def extract_sst_from_zip(zip_path: Path):
 
     slices.to_netcdf(OUTPUT_FILE, mode=mode, format="NETCDF4",
                         unlimited_dims=["time"], engine="netcdf4")
+    print(f"Processed {zip_path.name} and saved to {OUTPUT_FILE}", flush=True)
 
 
 for zip_path in zip_files:
