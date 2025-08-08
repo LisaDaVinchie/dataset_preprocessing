@@ -7,7 +7,18 @@
 #SBATCH --output=modis_dl_%j.out
 #SBATCH --error=modis_dl_%j.err
 
-source ./venv_modis/bin/activate
+set -e
+
+notify_telegram() {
+    local status="$1"
+    curl -s -X POST "https://api.telegram.org/bot${bot_id}/sendMessage" \
+    -d chat_id=${chat_id} \
+    -d text="Your dataset_preprocessing download job (Job ID: $SLURM_JOB_ID) has completed with status: $status"
+}
+
+trap 'notify_telegram "FAILED (job terminated or timed out)"' TERM EXIT
+
+source ./venv_download/bin/activate || { echo "Failed to activate virtual environment"; exit 1; }
 
 START_YEAR=2021
 END_YEAR=2021
@@ -32,3 +43,8 @@ podaac-data-downloader -c MODIS_TERRA_L3_SST_THERMAL_DAILY_4KM_NIGHTTIME_V2019.0
 deactivate
 
 rm -rf $DESTINATION_DIR/*.NRT.nc
+
+notify_telegram "SUCCESS"
+
+# Clear the EXIT trap to avoid double notifications
+trap - EXIT
