@@ -51,9 +51,10 @@ print("Coordinates extracted from the first file\n", flush=True)
 
 encoding = {
     'time': {
-        'dtype': 'datetime64[ns]',  # or 'int64' for more precision
+        'dtype': 'int64',  # or 'int64' for more precision
         'units': 'days since 1970-01-01',  # Unix epoch (standard reference)
-        'calendar': 'gregorian'  # Standard calendar
+        'calendar': 'gregorian',
+        'zlib': True  # Standard calendar
     }
 }
 
