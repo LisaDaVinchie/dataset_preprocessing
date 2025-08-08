@@ -16,8 +16,8 @@ print("Program started", flush=True)
 # LON_RANGE = (-7, 37)
 # LAT_RANGE = (30, 46)
 # Area of interest
-lat_inds = np.arange(1056, 1439 + 1)
-lon_inds = np.arange(4152, 5207 + 1)
+lat_inds = np.arange(1050, 1050 + 168 + 1)
+lon_inds = np.arange(4600, 4600 + 144 + 1)
 
 print(f"Lat indices: {len(lat_inds)}, lon indices: {len(lon_inds)}", flush=True)
 
