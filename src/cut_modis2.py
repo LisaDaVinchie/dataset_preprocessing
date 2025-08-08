@@ -5,6 +5,7 @@ from io import BytesIO
 from pathlib import Path
 from datetime import datetime
 import time
+import netCDF4
 from filelock import FileLock
 start_time = time.time()
 print("Program started", flush=True)
@@ -30,11 +31,10 @@ while OUTPUT_FILE.exists():
     i += 1
     OUTPUT_FILE = Path(f"./data/modis/processed/dataset_{i}.nc")
 lock = FileLock(str(OUTPUT_FILE) + ".lock")
-    
 print(f"Output file will be saved as: {OUTPUT_FILE}", flush=True)
 
 
-zip_files = sorted(DATA_DIR.glob("[0-9][0-9][0-9][0-9].zip"))
+zip_files = sorted(DATA_DIR.glob("[0-9][0-9][0-9][0-9].zip"))[0:3]
 print(f"Found {len(zip_files)} zip files in {DATA_DIR}", flush=True)
 
 with zipfile.ZipFile(zip_files[0], 'r') as zf:
@@ -46,6 +46,24 @@ with zipfile.ZipFile(zip_files[0], 'r') as zf:
                     lon_subset = ds.lon.isel(lon=lon_inds).values
             break  # just use the first file
 print("Coordinates extracted from the first file\n", flush=True)
+
+def append_to_netcdf(output_file, new_ds):
+    with netCDF4.Dataset(output_file, "a") as nc:
+        time_var = nc.variables['time']
+        current_len = time_var.shape[0]
+        
+        new_len = new_ds.dims['time']
+        
+        # Append time values
+        time_var[current_len:current_len+new_len] = new_ds['time'].values
+        
+        # Append each variable (adjust names as needed)
+        for varname in ['sst', 'qual_sst', 'palette']:
+            var = nc.variables[varname]
+            # Assuming var dims order is (time, lat, lon)
+            data = new_ds[varname].values
+            var[current_len:current_len+new_len, :, :] = data
+
 
 def extract_sst_from_zip(zip_path: Path):
     daily_slices = []
@@ -74,13 +92,13 @@ def extract_sst_from_zip(zip_path: Path):
     
     with lock:
         if OUTPUT_FILE.exists():
-            mode = "a"
+            print(f"Appending to existing file: {OUTPUT_FILE}", flush=True)
+            append_to_netcdf(OUTPUT_FILE, slices)
         else:
-            mode = "w"
+            print(f"Creating new file: {OUTPUT_FILE}", flush=True)
             slices = slices.assign_coords(lat=("lat", lat_subset),
                                     lon=("lon", lon_subset))
-
-    slices.to_netcdf(OUTPUT_FILE, mode=mode, format="NETCDF4",
+            slices.to_netcdf(OUTPUT_FILE, mode="w", format="NETCDF4",
                         unlimited_dims=["time"], engine="netcdf4")
     print(f"Processed {zip_path.name} and saved to {OUTPUT_FILE}", flush=True)
 
