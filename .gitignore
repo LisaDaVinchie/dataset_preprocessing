@@ -15,6 +15,7 @@ logs/
 upload_dataset.sh
 transfer.sh
 upload_raw_data.sh
+download_dataset.sh
 
 # Bot codes
 bot_codes.txt
