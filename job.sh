@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH --job-name=gen_data_test
+#SBATCH --job-name=gen_data
 #SBATCH --output=logs/%j.out
 #SBATCH --error=logs/%j.err
-#SBATCH --time=01:00:00
+#SBATCH --time=08:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
@@ -30,7 +30,7 @@ ulimit -a
 
 PYTHON=$(which python3) || { echo "Could not find python3"; exit 1; }
 
-$PYTHON src/cut_modis1.py || { echo "MODIS processing failed"; exit 1; }
+$PYTHON src/cut_modis2.py || { echo "MODIS processing failed"; exit 1; }
 
 notify_telegram "SUCCESS"
 
