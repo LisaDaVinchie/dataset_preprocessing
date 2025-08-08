@@ -4,8 +4,8 @@
 #SBATCH --ntasks=1
 #SBATCH --time=01:00:00
 #SBATCH --mem=4GB
-#SBATCH --output=logs/modis_dl_%j.out
-#SBATCH --error=logs/modis_dl_%j.err
+#SBATCH --output=logs/%j.out
+#SBATCH --error=logs/%j.err
 
 source bot_codes.txt
 bot_id=${bot_id}
