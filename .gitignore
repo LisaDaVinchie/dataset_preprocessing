@@ -12,7 +12,9 @@ src/*.ipynb
 logs/
 
 # Transfer files
-*.sh
+upload_dataset.sh
+transfer.sh
+upload_raw_data.sh
 
 # Bot codes
 bot_codes.txt
