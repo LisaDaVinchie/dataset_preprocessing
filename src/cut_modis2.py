@@ -50,11 +50,20 @@ with zipfile.ZipFile(zip_files[0], 'r') as zf:
 print("Coordinates extracted from the first file\n", flush=True)
 
 encoding = {
+    'sst': {
+        'dtype': 'float32',
+        'zlib': True
+    },
+    'qual_sst': {
+        'dtype': 'float32',        # Downcast from float32 if possible!
+        'zlib': True
+    },
     'time': {
-        'dtype': 'int64',  # or 'int64' for more precision
-        'units': 'days since 1970-01-01',  # Unix epoch (standard reference)
-        'calendar': 'gregorian',
-        'zlib': True  # Standard calendar
+        'dtype': 'int64',        # datetime64[ns] stored as int64
+        'zlib': False            # Time is small (57KB) - don't compress
+    },
+    'palette': {
+        'zlib': False            # Too small to benefit
     }
 }
 
