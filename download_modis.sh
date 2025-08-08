@@ -24,14 +24,6 @@ trap 'notify_telegram "FAILED (job terminated or timed out)"' TERM EXIT
 
 source ./venv_download/bin/activate || { echo "Failed to activate virtual environment"; exit 1; }
 
-echo "HOME is $HOME"
-ls -l $HOME/.netrc
-
-chmod 600 $HOME/.netrc
-echo "---- .netrc ----"
-cat ~/.netrc | sed 's/password .*/password ****/g'
-echo "--------------"
-
 
 START_YEAR=2021
 END_YEAR=2021
