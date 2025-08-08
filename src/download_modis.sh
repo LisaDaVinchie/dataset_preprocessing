@@ -1,11 +1,18 @@
-PARAMS_FILE="./src/params.json"
+#!/bin/bash
+#SBATCH --job-name=modis_dl
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --time=01:00:00
+#SBATCH --mem=4GB
+#SBATCH --output=modis_dl_%j.out
+#SBATCH --error=modis_dl_%j.err
 
 source ./venv_modis/bin/activate
 
-START_YEAR=$(jq -r '.dataset.year_range[0]' $PARAMS_FILE)
-END_YEAR=$(jq -r '.dataset.year_range[1]' $PARAMS_FILE)
-START_MONTH=$(jq -r '.dataset.month_range[0]' $PARAMS_FILE)
-END_MONTH=$(jq -r '.dataset.month_range[1]' $PARAMS_FILE)
+START_YEAR=2021
+END_YEAR=2021
+START_MONTH=1
+END_MONTH=12
 
 START_DATE=$(printf "%04d-%02d-01T00:00:00Z" $START_YEAR $START_MONTH)
 if [ "$END_MONTH" -eq 12 ]; then
