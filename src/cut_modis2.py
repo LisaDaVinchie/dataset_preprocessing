@@ -117,23 +117,20 @@ def extract_sst_from_zip(zip_path: Path):
                         daily_slices.append(subset)
                         
     slices = xr.concat(daily_slices, dim="time")
-    slices = xr.Dataset(
-        {
-            "sst": slices["sst"],
-            "qual_sst": slices["qual_sst"],
-            "palette": slices["palette"]
-        },
-        coords={
-            "time": slices["time"],
-            "lat": slices["lat"],
-            "lon": slices["lon"]
-        }
-    )
+    
     print(f"Extracted {len(daily_slices)} slices from {zip_path.name}", flush=True)
     
     with lock:
         if OUTPUT_FILE.exists():
             print(f"Appending to existing file: {OUTPUT_FILE}", flush=True)
+            slices = xr.Dataset(
+                {
+                    "sst": slices["sst"],
+                    "qual_sst": slices["qual_sst"],
+                    "palette": slices["palette"]
+                },
+                coords={"time": slices["time"]}
+            )
             append_to_netcdf(OUTPUT_FILE, slices)
         else:
             print(f"Creating new file: {OUTPUT_FILE}", flush=True)
