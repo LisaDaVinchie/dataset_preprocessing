@@ -49,23 +49,23 @@ with zipfile.ZipFile(zip_files[0], 'r') as zf:
             break  # just use the first file
 print("Coordinates extracted from the first file\n", flush=True)
 
-encoding = {
-    'sst': {
-        'dtype': 'float32',
-        'zlib': True
-    },
-    'qual_sst': {
-        'dtype': 'float32',
-        'zlib': True
-    },
-    'time': {
-        'dtype': 'int64',
-        'zlib': False
-    },
-    'palette': {
-        'zlib': False
-    }
-}
+# encoding = {
+#     'sst': {
+#         'dtype': 'float32',
+#         'zlib': True
+#     },
+#     'qual_sst': {
+#         'dtype': 'float32',
+#         'zlib': True
+#     },
+#     'time': {
+#         'dtype': 'int64',
+#         'zlib': False
+#     },
+#     'palette': {
+#         'zlib': False
+#     }
+# }
 
 def append_to_netcdf(output_file, new_ds):
     with netCDF4.Dataset(output_file, "a") as nc:
@@ -115,25 +115,45 @@ def extract_sst_from_zip(zip_path: Path):
                         daily_slices.append(subset)
                         
     slices = xr.concat(daily_slices, dim="time")
+    slices = xr.Dataset(
+        {
+            "sst": slices["sst"],
+            "qual_sst": slices["qual_sst"],
+            "palette": slices["palette"]
+        },
+        coords={
+            "time": slices["time"],
+            "lat": slices["lat"],
+            "lon": slices["lon"]
+        }
+    )
     print(f"Extracted {len(daily_slices)} slices from {zip_path.name}", flush=True)
     
     with lock:
         if OUTPUT_FILE.exists():
             print(f"Appending to existing file: {OUTPUT_FILE}", flush=True)
-            append_to_netcdf(OUTPUT_FILE, slices)
+            slices.to_netcdf(OUTPUT_FILE, mode="a", format="NETCDF4",
+                        unlimited_dims=["time"], engine="netcdf4")
         else:
             print(f"Creating new file: {OUTPUT_FILE}", flush=True)
             slices = slices.assign_coords(lat=("lat", lat_subset),
                                     lon=("lon", lon_subset))
+            slices = xr.Dataset(
+                {
+                    "sst": slices["sst"],
+                    "qual_sst": slices["qual_sst"],
+                    "palette": slices["palette"]
+                },
+                coords={
+                    "time": slices["time"],
+                    "lat": slices["lat"],
+                    "lon": slices["lon"]
+                }
+            )
+            slices = slices.transpose("lon", "lat", "time", ...)
             slices.to_netcdf(OUTPUT_FILE, mode="w", format="NETCDF4",
-                        unlimited_dims=["time"], engine="netcdf4", encoding=encoding)
+                        unlimited_dims=["time"], engine="netcdf4")
     print(f"{zip_path.name} processed\n", flush=True)
-
-
-# for zip_path in zip_files:
-#     print(f"Processing {zip_path.name} ...\n", flush=True)
-#     extract_sst_from_zip(zip_path)
-#     print(f"{zip_path.name} processed\n", flush=True)
 
 # This line automatically detects the number of CPUs
 n_processes = int(os.environ.get('SLURM_CPUS_PER_TASK', os.cpu_count()))
