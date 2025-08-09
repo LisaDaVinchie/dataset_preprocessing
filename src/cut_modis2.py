@@ -15,8 +15,6 @@ def extract_sst_from_zip(zip_path: Path, lat_inds: np.ndarray, lon_inds: np.ndar
     lock = FileLock(str(output_file) + ".lock")
     daily_slices = []
     with zipfile.ZipFile(zip_path, 'r') as zf:
-        if len(zf.namelist()) < 365 or len(zf.namelist()) > 366:
-            raise ValueError(f"Invalid number of files in {zip_path.name}: {len(zf.namelist())}. Expected 365 or 366 files for daily data.")
         for file in zf.namelist():
             if file.endswith('.nc'):
                 with zf.open(file) as f:
