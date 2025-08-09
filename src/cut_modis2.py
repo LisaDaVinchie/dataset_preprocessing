@@ -130,9 +130,6 @@ if __name__ == "__main__":
                 break  # just use the first file
     print("Coordinates extracted from the first file\n", flush=True)
 
-    # This line automatically detects the number of CPUs
-    n_processes = int(os.environ.get('SLURM_CPUS_PER_TASK', os.cpu_count()))
-
     # Prepare arguments for each zip file
     args = [
         (
@@ -146,7 +143,9 @@ if __name__ == "__main__":
         for zip_file in zip_files
     ]
 
-    with Pool(processes=2) as pool:
+    # This line automatically detects the number of CPUs
+    n_processes = int(os.environ.get('SLURM_CPUS_PER_TASK', os.cpu_count()))
+    with Pool(processes=n_processes) as pool:
         pool.starmap(extract_sst_from_zip, args)
 
     print(f"Files processed in {time.time() - start_time:.2f} seconds\n", flush=True)
