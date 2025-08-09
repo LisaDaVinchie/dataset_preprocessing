@@ -115,7 +115,7 @@ if __name__ == "__main__":
     print(f"Output file will be saved as: {OUTPUT_FILE}", flush=True)
 
 
-    zip_files = sorted(DATA_DIR.glob("[0-9][0-9][0-9][0-9].zip"))[0:3]
+    zip_files = sorted(DATA_DIR.glob("[0-9][0-9][0-9][0-9].zip"))
     print(f"Found {len(zip_files)} zip files in {DATA_DIR}", flush=True)
 
     with zipfile.ZipFile(zip_files[0], 'r') as zf:
