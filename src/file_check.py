@@ -15,9 +15,9 @@ for zip_path in zip_files:
             start_date = datetime.date(year, 1, 1)
             days_in_year = (datetime.date(year, 12, 31) - start_date).days + 1
             year_dates = [(start_date + datetime.timedelta(days=i)).strftime("%Y%m%d") for i in range(days_in_year)]
-            for file in zf.namelist():
-                date = file.split('.')[1]  # Extract date from filename
-                if date not in year_dates:
+            available_dates = [file.split('.')[1] for file in zf.namelist()]
+            for date in year_dates:
+                if date not in available_dates:
                     print(f"Missing file for {date} in {zip_path.name}", flush=True)
 
     print(f"Finished checking {zip_path.name}\n", flush=True)
