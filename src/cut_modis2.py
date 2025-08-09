@@ -95,6 +95,8 @@ def extract_sst_from_zip(zip_path: Path):
     print(f"Processing {zip_path.name} ...\n", flush=True)
     daily_slices = []
     with zipfile.ZipFile(zip_path, 'r') as zf:
+        if len(zf.namelist()) < 365 or len(zf.namelist()) > 366:
+            raise ValueError(f"Invalid number of files in {zip_path.name}: {len(zf.namelist())}. Expected 365 or 366 files for daily data.")
         for file in zf.namelist():
             if file.endswith('.nc'):
                 with zf.open(file) as f:
@@ -132,8 +134,7 @@ def extract_sst_from_zip(zip_path: Path):
     with lock:
         if OUTPUT_FILE.exists():
             print(f"Appending to existing file: {OUTPUT_FILE}", flush=True)
-            slices.to_netcdf(OUTPUT_FILE, mode="a", format="NETCDF4",
-                        unlimited_dims=["time"], engine="netcdf4")
+            append_to_netcdf(OUTPUT_FILE, slices)
         else:
             print(f"Creating new file: {OUTPUT_FILE}", flush=True)
             slices = slices.assign_coords(lat=("lat", lat_subset),
