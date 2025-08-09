@@ -11,14 +11,13 @@ for zip_path in zip_files:
     with zipfile.ZipFile(zip_path, 'r') as zf:
         if len(zf.namelist()) < 365 or len(zf.namelist()) > 366:
             print(f"Invalid number of files in {zip_path.name}: {len(zf.namelist())}. Expected 365 or 366 files for daily data.", flush= True)
-            for i in range(1, 13):
-                if f"TERRA_MODIS.{i:02d}" not in zf.namelist():
-                    print(f"Missing file for month {i:02d} in {zip_path.name}", flush=True)
-                # Determine the number of days in the month for the current year
-                year = int(zip_path.stem)
-                n_days = (datetime.date(year if i < 12 else year + 1, i % 12 + 1, 1) - datetime.date(year, i, 1)).days
-                for j in range(1, n_days + 1):
-                    if f"TERRA_MODIS.{i:02d}.{j:02d}" not in zf.namelist():
-                        print(f"Missing file for day {j:02d} of month {i:02d} in {zip_path.name}", flush=True)
+            year = int(zip_path.stem)
+            start_date = datetime.date(year, 1, 1)
+            days_in_year = (datetime.date(year, 12, 31) - start_date).days + 1
+            year_dates = [(start_date + datetime.timedelta(days=i)).strftime("%Y%m%d") for i in range(days_in_year)]
+            for file in zf.namelist():
+                date = file.split('.')[1]  # Extract date from filename
+                if date not in year_dates:
+                    print(f"Missing file for {date} in {zip_path.name}", flush=True)
 
     print(f"Finished checking {zip_path.name}\n", flush=True)
