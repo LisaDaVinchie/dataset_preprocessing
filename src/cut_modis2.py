@@ -21,6 +21,10 @@ def extract_sst_from_zip(zip_path: Path, lat_inds: np.ndarray, lon_inds: np.ndar
                     with xr.open_dataset(BytesIO(f.read()), engine="h5netcdf") as ds:
                         subset = ds.isel(lat=lat_inds, lon=lon_inds)
 
+                        # Optional
+                        # Keep values where the temperature is in (0, 40) and the quality flag is between 1 and 3
+                        # subset['sst'] = subset['sst'].where((subset['sst'] > 0) & (subset['sst'] < 40) & (subset['qual_sst'] < 4), np.nan)
+
                         # Parse date from filename
                         date_str = file.split('.')[1]  # TERRA_MODIS.YYYYMMDD...
                         date = np.datetime64(datetime.strptime(date_str, "%Y%m%d"))
@@ -92,9 +96,6 @@ if __name__ == "__main__":
     start_time = time.time()
     print("Program started", flush=True)
 
-
-    # LON_RANGE = (-7, 37)
-    # LAT_RANGE = (30, 46)
     # Area of interest
     lat_inds = np.arange(1050, 1050 + 168)
     lon_inds = np.arange(4600, 4600 + 144)
@@ -143,7 +144,13 @@ if __name__ == "__main__":
 
     # This line automatically detects the number of CPUs
     n_processes = int(os.environ.get('SLURM_CPUS_PER_TASK', os.cpu_count()))
-    with Pool(processes=n_processes) as pool:
+    with Pool(processes=2) as pool:
         pool.starmap(extract_sst_from_zip, args)
+        
+    # Remove the lock file if it exists
+    lock_file = str(OUTPUT_FILE) + ".lock"
+    if os.path.exists(lock_file):
+        os.remove(lock_file)
+        print(f"Removed lock file: {lock_file}", flush=True)
 
     print(f"Files processed in {time.time() - start_time:.2f} seconds\n", flush=True)
