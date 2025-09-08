@@ -23,7 +23,7 @@ def extract_sst_from_zip(zip_path: Path, lat_inds: np.ndarray, lon_inds: np.ndar
 
                         # Optional
                         # Keep values where the temperature is in (0, 40) and the quality flag is between 1 and 3
-                        # subset['sst'] = subset['sst'].where((subset['sst'] > 0) & (subset['sst'] < 40) & (subset['qual_sst'] < 4), np.nan)
+                        subset['sst'] = subset['sst'].where((subset['sst'] > 0) & (subset['sst'] < 40) & (subset['qual_sst'] < 4), np.nan)
 
                         # Parse date from filename
                         date_str = file.split('.')[1]  # TERRA_MODIS.YYYYMMDD...
